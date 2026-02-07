@@ -33,7 +33,7 @@ public class Menu {
     private String description;
 
     @Column(nullable = false, precision = 19, scale = 2)
-    private BigDecimal price;
+    private int price;
 
     // 음수는 입력 금지
     @Min(0)
@@ -47,7 +47,7 @@ public class Menu {
     @Column(nullable = false) // Assuming category is required based on its usage in the original code.
     private Category category; // DB업데이트 필요.
 
-    public Menu(Store store, String name, String description, BigDecimal price, Integer stock, boolean isAvailable, Category category) {
+    public Menu(Store store, String name, String description, int price, Integer stock, boolean isAvailable, Category category) {
         this.store = store;
         this.name = name;
         this.description = description;
