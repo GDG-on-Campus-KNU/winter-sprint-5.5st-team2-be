@@ -9,7 +9,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "cart_item", uniqueConstraints = {
+@Table(uniqueConstraints = {
         @UniqueConstraint(columnNames = {"user_id", "menu_id"}) // [중요] 중복 담기 방지 제약
 })
 public class CartItem {
@@ -18,9 +18,8 @@ public class CartItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name = "user_id", nullable = false, updatable = false)
+    private Long userId; // 임시 X-Userx-ID 식별용
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name= "menu_id", nullable = false)
