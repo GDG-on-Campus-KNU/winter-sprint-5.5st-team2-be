@@ -64,7 +64,7 @@ public class OrderService {
         BigDecimal finalAmount = totalAmount.subtract(discountAmount).add(deliveryFee);
 
         // 4. Create and save Order
-        Order order = Order.builder()
+        Order tempOrder = Order.builder()
                 .user(user)
                 .totalAmount(totalAmount)
                 .discountAmount(discountAmount)
@@ -75,11 +75,11 @@ public class OrderService {
                 // Address is missing in OrderRequest, assuming it will be added later or default
                 .address("Default Address") // Placeholder
                 .build();
-        orderRepository.save(order);
+        final Order savedOrder = orderRepository.save(tempOrder);
 
         // 5. Save OrderItems and deduct stock
         orderItems.forEach(orderItem -> {
-            order.addOrderItem(orderItem); // Associate order with orderItem
+            savedOrder.addOrderItem(orderItem); // Associate order with orderItem
             orderItemRepository.save(orderItem);
 
             // Deduct stock
@@ -89,10 +89,10 @@ public class OrderService {
         });
 
         // Ensure order has updated orderItems list for response mapping
-        order.setOrderItems(orderItems);
+        savedOrder.setOrderItems(orderItems);
 
 
-        return OrderResponse.from(order);
+        return OrderResponse.from(savedOrder);
     }
 
     @Transactional(readOnly = true)

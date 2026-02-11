@@ -189,4 +189,41 @@ class OrderCalculatorTest {
         assertEquals(expectedFinalAmount, result.getFinalAmount(),
                 () -> "Expected finalAmount " + expectedFinalAmount + " but got " + result.getFinalAmount());
     }
+
+    @Test
+    @DisplayName("쿠폰 최소 주문 금액 미달 시 할인이 적용되지 않는지 확인")
+    void calculateTotal_minOrderAmountNotMet_shouldNotApplyDiscount() {
+        // Given
+        OrderItem item1 = mock(OrderItem.class);
+        when(item1.getOrderPrice()).thenReturn(BigDecimal.valueOf(10000));
+
+        OrderItem item2 = mock(OrderItem.class);
+        when(item2.getOrderPrice()).thenReturn(BigDecimal.valueOf(5000));
+
+        List<OrderItem> items = Arrays.asList(item1, item2); // Total 15,000
+
+        Coupon fixedCoupon = mock(Coupon.class);
+        when(fixedCoupon.getDiscountType()).thenReturn(Coupon.DiscountType.FIXED);
+        when(fixedCoupon.getDiscountValue()).thenReturn(BigDecimal.valueOf(5000)); // 5,000원 할인
+        when(fixedCoupon.getMinOrderAmount()).thenReturn(BigDecimal.valueOf(20000)); // 최소 주문 금액 20,000원
+
+        // Define expected values
+        BigDecimal expectedTotalAmount = BigDecimal.valueOf(15000);
+        BigDecimal expectedDiscountAmount = BigDecimal.ZERO; // 할인 적용 안 됨
+        BigDecimal expectedShippingFee = BigDecimal.valueOf(3000); // 총액 15,000 < 30,000 이므로 배송비 3,000원
+        BigDecimal expectedFinalAmount = BigDecimal.valueOf(18000); // 15,000 - 0 + 3,000
+
+        // When
+        CalculationResult result = OrderCalculator.calculateTotal(items, fixedCoupon);
+
+        // Then
+        assertEquals(expectedTotalAmount, result.getTotalAmount(),
+                () -> "Expected totalAmount " + expectedTotalAmount + " but got " + result.getTotalAmount());
+        assertEquals(expectedDiscountAmount, result.getDiscountAmount(),
+                () -> "Expected discountAmount " + expectedDiscountAmount + " but got " + result.getDiscountAmount());
+        assertEquals(expectedShippingFee, result.getShippingFee(),
+                () -> "Expected shippingFee " + expectedShippingFee + " but got " + result.getShippingFee());
+        assertEquals(expectedFinalAmount, result.getFinalAmount(),
+                () -> "Expected finalAmount " + expectedFinalAmount + " but got " + result.getFinalAmount());
+    }
 }
