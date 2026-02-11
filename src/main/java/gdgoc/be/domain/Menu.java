@@ -35,7 +35,6 @@ public class Menu {
     @Column(nullable = false, precision = 19, scale = 2)
     private int price;
 
-    // 음수는 입력 금지
     @Min(0)
     @Column(nullable = false)
     private Integer stock;

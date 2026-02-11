@@ -11,6 +11,7 @@ import java.util.List;
 @Getter
 @Setter
 public class OrderRequest {
+
     @Valid
     @NotNull(message = "주문할 상품 목록은 필수입니다.")
     private List<OrderItemRequest> orderItems;

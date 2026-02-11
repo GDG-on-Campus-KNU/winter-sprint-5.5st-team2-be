@@ -6,9 +6,9 @@ import lombok.Getter;
 
 
 import lombok.*;
-import java.math.BigDecimal;
 
-@Getter @Builder
+@Getter
+@Builder
 @NoArgsConstructor @AllArgsConstructor
 public class MenuResponse {
     private Long id;

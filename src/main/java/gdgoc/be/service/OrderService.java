@@ -10,6 +10,8 @@ import gdgoc.be.domain.OrderItem;
 import gdgoc.be.domain.User; // Assuming User domain exists
 import gdgoc.be.dto.OrderRequest;
 import gdgoc.be.dto.OrderResponse;
+import gdgoc.be.exception.BusinessErrorCode;
+import gdgoc.be.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,15 +34,15 @@ public class OrderService {
     public OrderResponse createOrder(Long userId, OrderRequest request) {
         // 1. Fetch User (Assuming UserRepository exists and User entity is used)
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("USER_NOT_FOUND"));
+                .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
 
         // 2. Validate items and check stock
         List<OrderItem> orderItems = request.getOrderItems().stream().map(itemRequest -> {
             Menu menu = menuRepository.findById(itemRequest.getMenuId())
-                    .orElseThrow(() -> new RuntimeException("MENU_NOT_FOUND: " + itemRequest.getMenuId()));
+                    .orElseThrow(() -> new BusinessException(BusinessErrorCode.MENU_NOT_FOUND));
 
             if (menu.getStock() < itemRequest.getQuantity()) {
-                throw new RuntimeException("OUT_OF_STOCK for menu: " + menu.getName());
+                throw new BusinessException(BusinessErrorCode.OUT_OF_STOCK);
             }
 
             // Temporarily create OrderItem to calculate price, will be saved later
@@ -97,7 +99,7 @@ public class OrderService {
     public List<OrderResponse> getOrdersByUser(Long userId) {
         // User validation for existence, though findByUser_Id will likely throw if user doesn't exist linked to orders
         userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("USER_NOT_FOUND"));
+                .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
 
         List<Order> orders = orderRepository.findByUser_Id(userId); // Use findByUser_Id as per domain model
 
@@ -109,10 +111,10 @@ public class OrderService {
     @Transactional(readOnly = true)
     public OrderResponse getOrderDetails(Long userId, Long orderId) {
         userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("USER_NOT_FOUND"));
+                .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
 
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("ORDER_NOT_FOUND: " + orderId));
+                .orElseThrow(() -> new BusinessException(BusinessErrorCode.ORDER_NOT_FOUND));
 
         // [Authorization - Skipped for now as per user instruction]
         // if (!order.getUser().getId().equals(userId)) {

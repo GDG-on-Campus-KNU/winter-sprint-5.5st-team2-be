@@ -5,6 +5,8 @@ import gdgoc.be.domain.Category;
 import gdgoc.be.domain.Menu;
 import gdgoc.be.dto.MenuDetailResponse;
 import gdgoc.be.dto.MenuResponse;
+import gdgoc.be.exception.BusinessErrorCode;
+import gdgoc.be.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -46,7 +48,7 @@ public class MenuService {
 
         // id 에 맞는 menu 가 존재하지 않을 시 Exception 반환
         Menu menu = menuRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Menu_NOT_FOUND"));
+                .orElseThrow(() -> new BusinessException(BusinessErrorCode.MENU_NOT_FOUND));
 
         return MenuDetailResponse.builder()
                 .id(menu.getId())
