@@ -21,14 +21,15 @@ public class OrderResponse {
     private String address; // 추가
     private List<OrderItemResponse> orderItems;
     private BigDecimal totalPrice;
-    private BigDecimal totalDiscount; // Placeholder
-    private BigDecimal shippingFee;   // Placeholder
+    private BigDecimal totalDiscount; // 임시 값
+    private BigDecimal shippingFee;   // 임시 값
     private BigDecimal finalPrice;
+    private Long couponId;
 
     public static OrderResponse from(Order order) {
         return OrderResponse.builder()
                 .orderId(order.getId())
-                .orderDate(order.getCreatedAt()) // orderDate -> createdAt
+                .orderDate(order.getCreatedAt()) // orderDate는 createdAt으로 매핑
                 .orderStatus(order.getStatus().name())
                 .address(order.getAddress()) // 추가
                 .orderItems(order.getOrderItems().stream()
@@ -38,6 +39,7 @@ public class OrderResponse {
                 .totalDiscount(order.getDiscountAmount()) // 매핑
                 .shippingFee(order.getDeliveryFee())   // 매핑
                 .finalPrice(order.getFinalAmount()) // 매핑
+                .couponId(order.getCouponId()) // couponId 매핑
                 .build();
     }
 

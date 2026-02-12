@@ -31,4 +31,12 @@ public class UserCoupon {
     @Column(name = "is_used", nullable = false)
     @Builder.Default
     private Boolean isUsed = false;
+
+    public boolean isUsed() {
+        return this.isUsed;
+    }
+
+    public void setUsed(boolean used) {
+        isUsed = used;
+    }
 }
