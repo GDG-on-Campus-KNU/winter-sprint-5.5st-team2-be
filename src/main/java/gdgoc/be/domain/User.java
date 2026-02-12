@@ -28,6 +28,15 @@ public class User {
     @Column(nullable = false, unique = true, length = 255)
     private String email;
 
+    @Column(length = 10)
+    private String zipCode;
+
+    @Column(length = 255)
+    private String address;
+
+    @Column(length = 255)
+    private String detailAddress;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -35,5 +44,13 @@ public class User {
     public User(String name, String email) {
         this.name = name;
         this.email = email;
+    }
+
+    public User(String name, String email, String zipCode, String address, String detailAddress) {
+        this.name = name;
+        this.email = email;
+        this.zipCode = zipCode;
+        this.address = address;
+        this.detailAddress = detailAddress;
     }
 }

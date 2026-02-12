@@ -60,7 +60,9 @@ class OrderServiceTest {
 
     @BeforeEach
     void setUp() {
-        testUser = new User(1L, "testUser", "test@example.com", LocalDateTime.now());
+        testUser = new User("testUser", "test@example.com");
+        testUser.setId(1L);
+        testUser.setCreatedAt(LocalDateTime.now());
         testStore = new Store(1L, "Test Store", "Test Address", "010-1234-5678");
         testMenu1 = new Menu(1L, testStore, "Menu 1", "Description 1", 10000, 10, true, null); // Category is null, but not relevant for these tests
         testMenu2 = new Menu(2L, testStore, "Menu 2", "Description 2", 15000, 5, true, null);
