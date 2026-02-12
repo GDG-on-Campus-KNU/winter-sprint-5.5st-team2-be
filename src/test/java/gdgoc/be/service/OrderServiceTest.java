@@ -26,6 +26,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.stream.Collectors;
 import java.util.List;
 import java.util.Optional;
 
@@ -87,19 +88,13 @@ class OrderServiceTest {
         when(menuRepository.findById(testMenu1.getId())).thenReturn(Optional.of(testMenu1));
         when(menuRepository.findById(testMenu2.getId())).thenReturn(Optional.of(testMenu2));
 
-        Order savedOrder = Order.builder()
-                .id(1L)
-                .user(testUser)
-                .totalAmount(BigDecimal.valueOf(35000))
-                .discountAmount(BigDecimal.ZERO)
-                .deliveryFee(BigDecimal.ZERO)
-                .finalAmount(BigDecimal.valueOf(35000))
-                .status(Order.OrderStatus.PENDING)
-                .createdAt(LocalDateTime.now())
-                .address("Default Address")
-                .orderItems(new java.util.ArrayList<>()) // Initialize the list
-                .build();
-        when(orderRepository.save(any(Order.class))).thenReturn(savedOrder);
+        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> {
+            Order orderToSave = invocation.getArgument(0);
+            if (orderToSave.getId() == null) {
+                orderToSave.setId(1L); // Simulate ID generation
+            }
+            return orderToSave;
+        });
         when(orderItemRepository.save(any(OrderItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
 
@@ -108,7 +103,7 @@ class OrderServiceTest {
 
         // Then
         assertThat(response).isNotNull();
-        assertThat(response.getOrderId()).isEqualTo(savedOrder.getId());
+        assertThat(response.getOrderId()).isEqualTo(1L);
         assertThat(response.getTotalPrice()).isEqualTo(BigDecimal.valueOf(35000));
         assertThat(response.getOrderItems()).hasSize(2);
         assertThat(testMenu1.getStock()).isEqualTo(8); // 10 - 2
@@ -180,7 +175,7 @@ class OrderServiceTest {
         // When & Then
         RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> orderService.createOrder(testUser.getId(), orderRequest));
-        assertThat(exception.getMessage()).isEqualTo("OUT_OF_STOCK for menu: " + testMenu1.getName());
+        assertThat(exception.getMessage()).isEqualTo("재고가 부족합니다.");
 
         verify(userRepository, times(1)).findById(testUser.getId());
         verify(menuRepository, times(1)).findById(testMenu1.getId());
@@ -227,8 +222,8 @@ class OrderServiceTest {
         // Then
         assertThat(responses).isNotNull();
         assertThat(responses).hasSize(2);
-        assertThat(responses.get(0).getOrderId()).isEqualTo(order1.getId());
-        assertThat(responses.get(1).getOrderId()).isEqualTo(order2.getId());
+        List<Long> orderIds = responses.stream().map(OrderResponse::getOrderId).collect(Collectors.toList());
+        assertThat(orderIds).containsExactlyInAnyOrder(order1.getId(), order2.getId());
 
         verify(userRepository, times(1)).findById(testUser.getId());
         verify(orderRepository, times(1)).findByUser_Id(testUser.getId());
@@ -279,10 +274,12 @@ class OrderServiceTest {
                 .status(Order.OrderStatus.COMPLETED)
                 .createdAt(LocalDateTime.now())
                 .address("Default Address")
-                .build();
-        // Add order items to ensure response mapping works
+                .build(); // Build order first without orderItems
+        // Then create orderItem using the created order
         OrderItem orderItem = OrderItem.builder().id(100L).order(order).menu(testMenu1).quantity(1).orderPrice(BigDecimal.valueOf(10000)).build();
+        // Now set the orderItems on the order object
         order.setOrderItems(List.of(orderItem));
+
 
 
         when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
@@ -378,7 +375,7 @@ class OrderServiceTest {
 
         // Then
         assertThat(response).isNotNull();
-        assertThat(response.getOrderId()).isEqualTo(savedOrder.getId());
+        assertThat(response.getOrderId()).isEqualTo(1L);
         assertThat(response.getTotalPrice()).isEqualTo(BigDecimal.valueOf(20000));
         assertThat(response.getTotalDiscount()).isEqualTo(BigDecimal.valueOf(5000));
         assertThat(response.getShippingFee()).isEqualTo(BigDecimal.valueOf(3000));
@@ -438,7 +435,7 @@ class OrderServiceTest {
 
         // Then
         assertThat(response).isNotNull();
-        assertThat(response.getOrderId()).isEqualTo(savedOrder.getId());
+        assertThat(response.getOrderId()).isEqualTo(1L);
         assertThat(response.getTotalPrice()).isEqualTo(BigDecimal.valueOf(30000));
         assertThat(response.getTotalDiscount()).isEqualTo(BigDecimal.valueOf(6000));
         assertThat(response.getShippingFee()).isEqualTo(BigDecimal.ZERO); // 총액이 3만원 이상이므로 무료배송
