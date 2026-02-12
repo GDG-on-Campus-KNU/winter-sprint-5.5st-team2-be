@@ -37,10 +37,9 @@ public class Menu {
     private boolean isAvailable;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false) // Assuming category is required based on its usage in the original code.
-    private Category category; // DB업데이트 필요.
+    @Column(nullable = false)
+    private Category category;
 
-    // 테스트 코드, 나중에 리팩토링 후 제거 필요
     public Menu(Long id, Store store, String name, String description, int price, Integer stock, boolean isAvailable, Category category) {
         this.id = id;
         this.store = store;
@@ -72,6 +71,5 @@ public class Menu {
                 .isAvailable(stock >0)
                 .category(cat)
                 .build();
-
     }
 }

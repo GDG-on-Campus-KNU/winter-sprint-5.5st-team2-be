@@ -1,5 +1,6 @@
 package gdgoc.be.domain;
 
+import gdgoc.be.dto.CalculationResult;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,9 +17,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 @Table(name = "orders") // Changed from "order" to "orders" based on schema
 public class Order {
 
@@ -34,11 +33,9 @@ public class Order {
     private BigDecimal totalAmount;
 
     @Column(name = "discount_amount", nullable = false, precision = 19, scale = 2)
-    @Builder.Default
     private BigDecimal discountAmount = BigDecimal.ZERO;
 
     @Column(name = "delivery_fee", nullable = false, precision = 19, scale = 2)
-    @Builder.Default
     private BigDecimal deliveryFee = BigDecimal.ZERO;
 
     @Column(name = "final_amount", nullable = false, precision = 19, scale = 2)
@@ -58,13 +55,38 @@ public class Order {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Builder.Default
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
+
 
     // Enum for OrderStatus
     public enum OrderStatus {
         PENDING, COMPLETED, CANCELLED
+    }
+
+    @Builder
+    private Order(User user, BigDecimal totalAmount, BigDecimal discountAmount,
+                  BigDecimal deliveryFee, BigDecimal finalAmount, Long couponId, String address) {
+        this.user = user;
+        this.totalAmount = totalAmount;
+        this.discountAmount = discountAmount;
+        this.deliveryFee = deliveryFee;
+        this.finalAmount = finalAmount;
+        this.couponId = couponId;
+        this.address = address;
+        this.status = OrderStatus.PENDING;
+    }
+
+    public static Order createOrder(User user, CalculationResult result, Long couponId, String address) {
+        return Order.builder()
+                .user(user)
+                .totalAmount(result.getTotalAmount())
+                .discountAmount(result.getDiscountAmount())
+                .deliveryFee(result.getShippingFee())
+                .finalAmount(result.getFinalAmount())
+                .couponId(couponId)
+                .address(address)
+                .build();
     }
 
     public void addOrderItem(OrderItem orderItem) {

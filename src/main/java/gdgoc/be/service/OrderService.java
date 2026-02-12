@@ -82,23 +82,11 @@ public class OrderService {
         CalculationResult calculationResult = OrderCalculator.calculateTotal(orderItems, coupon);
 
         // 4. 주문 생성 및 저장
-        Order tempOrder = Order.builder()
-                .user(user)
-                .totalAmount(calculationResult.getTotalAmount())
-                .discountAmount(calculationResult.getDiscountAmount())
-                .deliveryFee(calculationResult.getShippingFee())
-                .finalAmount(calculationResult.getFinalAmount())
-                .couponId(couponId)
-                .status(Order.OrderStatus.PENDING)
-                .createdAt(LocalDateTime.now())
-                // OrderRequest에 주소가 누락됨, 나중에 추가되거나 기본값으로 가정
-                .address("Default Address") // 임시 값
-                .build();
-        final Order savedOrder = orderRepository.save(tempOrder);
+        Order order=  Order.createOrder(user,calculationResult, request.getCouponId(), "Default Address");
 
         // 5. 주문 상품 저장 및 재고 차감
         orderItems.forEach(orderItem -> {
-            savedOrder.addOrderItem(orderItem); // 주문과 주문 상품 연관
+            order.addOrderItem(orderItem); // 주문과 주문 상품 연관
             orderItemRepository.save(orderItem);
 
             // 재고 차감
@@ -113,9 +101,8 @@ public class OrderService {
             userCouponRepository.save(userCoupon);
         }
 
-        // 응답 매핑을 위해 주문에 업데이트된 orderItems 목록이 있는지 확인
-        savedOrder.setOrderItems(orderItems);
-
+        // 최종 주문 저장
+        Order savedOrder = orderRepository.save(order);
 
         return OrderResponse.from(savedOrder);
     }
