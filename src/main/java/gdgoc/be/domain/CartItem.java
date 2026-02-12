@@ -6,11 +6,9 @@ import lombok.*;
 
 @Entity
 @Getter
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"user_id", "menu_id"}) // [중요] 중복 담기 방지 제약
+        @UniqueConstraint(columnNames = {"user_id", "menu_id"})
 })
 public class CartItem {
 
@@ -19,7 +17,7 @@ public class CartItem {
     private Long id;
 
     @Column(name = "user_id", nullable = false, updatable = false)
-    private Long userId; // 임시 X-Userx-ID 식별용
+    private Long userId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name= "menu_id", nullable = false)
@@ -28,7 +26,13 @@ public class CartItem {
     @Column(nullable = false)
     private int quantity;
 
-    // 수량 증가 메서드
+    @Builder
+    public CartItem(Long userId, Menu menu, int quantity) {
+        this.userId = userId;
+        this.menu = menu;
+        this.quantity = quantity;
+    }
+
     public void addQuantity(int amount) {
         this.quantity += amount;
     }
@@ -36,5 +40,13 @@ public class CartItem {
     // 수량 업데이트 메서드
     public void updateQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    public static CartItem createCartItem(Long userId, Menu menu, int quantity) {
+        return CartItem.builder()
+                .userId(userId)
+                .menu(menu)
+                .quantity(quantity)
+                .build();
     }
 }

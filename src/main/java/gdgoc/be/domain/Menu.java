@@ -3,18 +3,12 @@ package gdgoc.be.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import java.math.BigDecimal;
+import lombok.*;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @Table(name = "menu")
 public class Menu {
 
@@ -46,6 +40,18 @@ public class Menu {
     @Column(nullable = false) // Assuming category is required based on its usage in the original code.
     private Category category; // DB업데이트 필요.
 
+    // 테스트 코드, 나중에 리팩토링 후 제거 필요
+    public Menu(Long id, Store store, String name, String description, int price, Integer stock, boolean isAvailable, Category category) {
+        this.id = id;
+        this.store = store;
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.stock = stock;
+        this.isAvailable = isAvailable;
+        this.category = category;
+    }
+    @Builder
     public Menu(Store store, String name, String description, int price, Integer stock, boolean isAvailable, Category category) {
         this.store = store;
         this.name = name;
@@ -54,5 +60,18 @@ public class Menu {
         this.stock = stock;
         this.isAvailable = isAvailable;
         this.category = category;
+    }
+
+    public static Menu createMenu(Store store, String name, String desc,int price, int stock, Category cat) {
+        return Menu.builder()
+                .store(store)
+                .name(name)
+                .description(desc)
+                .price(price)
+                .stock(stock)
+                .isAvailable(stock >0)
+                .category(cat)
+                .build();
+
     }
 }

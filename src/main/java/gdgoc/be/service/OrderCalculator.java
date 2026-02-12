@@ -50,11 +50,6 @@ public class OrderCalculator {
         // 4. Calculate finalAmount
         BigDecimal finalAmount = amountAfterDiscount.add(shippingFee);
 
-        return CalculationResult.builder()
-                .totalAmount(totalAmount)
-                .discountAmount(discountAmount)
-                .shippingFee(shippingFee)
-                .finalAmount(finalAmount)
-                .build();
+        return CalculationResult.of(totalAmount, discountAmount, shippingFee, finalAmount);
     }
 }

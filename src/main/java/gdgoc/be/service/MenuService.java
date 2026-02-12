@@ -20,8 +20,6 @@ public class MenuService {
 
     public List<MenuResponse> findAllMenus(String category, String search, String sort) {
 
-        // 1. MenuRepository 에서 Entity 리스트를 가져옴
-        // category -> search -> sort(최신식/가격순) 순서로 탐색을 진행
         List<Menu> menus;
         if(category != null) {
             menus = menuRepository.findByCategory(Category.valueOf(category));
@@ -33,32 +31,17 @@ public class MenuService {
             menus = menuRepository.findAll();
         }
 
-        // 2. Entity -> DTO 로 전환하여 반환
         return menus.stream()
-                .map(menu -> MenuResponse.builder()
-                        .id(menu.getId())
-                        .name(menu.getName())
-                        .price(menu.getPrice())
-                        .category(menu.getCategory().name())
-                        .build())
+                .map(MenuResponse::from)
                 .collect(Collectors.toList());
+
     }
 
     public MenuDetailResponse findMenuDetail(Long id) {
 
-        // id 에 맞는 menu 가 존재하지 않을 시 Exception 반환
         Menu menu = menuRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(BusinessErrorCode.MENU_NOT_FOUND));
 
-        return MenuDetailResponse.builder()
-                .id(menu.getId())
-                .name(menu.getName())
-                .price(menu.getPrice())
-                .description(menu.getDescription())
-                .stock(menu.getStock())
-                .category(menu.getCategory().name())
-                .isAvailable(menu.getStock() > 0)
-                .build();
-
+        return MenuDetailResponse.from(menu);
     }
 }

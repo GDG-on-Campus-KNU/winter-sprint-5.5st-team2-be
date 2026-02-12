@@ -19,7 +19,6 @@ public class CartController {
 
     private final CartService cartService;
 
-    // 1. 장바구니 목록 조회 (GET/api/cart)
     @GetMapping
     public ApiResponse<List<CartResponse>> getCart(@RequestHeader("X-USER-ID")Long userId) {
 
@@ -27,7 +26,6 @@ public class CartController {
         return ApiResponse.success(responses);
     }
 
-    // 2. 장바구니 담기 (POST /api/cart)
     @PostMapping
     public ApiResponse<String> addToCart(
             @RequestHeader("X-USER-ID") Long userId,
@@ -36,20 +34,16 @@ public class CartController {
         return ApiResponse.success("장바구니에 상품을 담았습니다.");
     }
 
-    // 3. 수량 변경 (Post /api/cart/{itemId})
     @PatchMapping("/{itemId}")
     public ApiResponse<String> updateQuantity(
             @PathVariable Long itemId,
             @RequestBody CartRequest request) {
-        //[요구사항] 수량이 0 이하이면 서비스에서 자동 삭제
         cartService.updateCartItemQuantity(itemId, request.getQuantity());
         return ApiResponse.success("수량이 변경되었습니다.");
     }
 
-    // 4. 일괄 삭제 (DELETE /api/cart)
     @DeleteMapping
     public ApiResponse<String> deleteCartItems(@RequestBody CartDeleteRequest request) {
-        // [요구사항] itemIds 배열을 한 번에 삭제
         cartService.deleteSelectedItems(request.getItemIds());
         return ApiResponse.success("선택한 상품들을 삭제했습니다.");
     }

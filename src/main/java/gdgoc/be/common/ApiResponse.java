@@ -15,7 +15,7 @@ public class ApiResponse<T> {
         this.message = message;
     }
 
-    // 성공 시 반환되는 ApiResponse
+
     public static <T> ApiResponse<T> success(T data) {
         return new ApiResponse<>(true,data,null);
     }
