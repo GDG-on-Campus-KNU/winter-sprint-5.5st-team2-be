@@ -8,8 +8,10 @@ import gdgoc.be.domain.Menu;
 import gdgoc.be.domain.Order;
 import gdgoc.be.domain.OrderItem;
 import gdgoc.be.domain.User; // Assuming User domain exists
+import gdgoc.be.dto.CalculationResult;
 import gdgoc.be.dto.OrderRequest;
 import gdgoc.be.dto.OrderResponse;
+import gdgoc.be.service.OrderCalculator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,23 +53,16 @@ public class OrderService {
                     .build();
         }).collect(Collectors.toList());
 
-        // 3. Calculate total amounts
-        BigDecimal totalAmount = orderItems.stream()
-                .map(OrderItem::getOrderPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        // Placeholder for discount and delivery fee calculation
-        BigDecimal discountAmount = BigDecimal.ZERO;
-        BigDecimal deliveryFee = BigDecimal.ZERO;
-        BigDecimal finalAmount = totalAmount.subtract(discountAmount).add(deliveryFee);
+        // 3. Calculate total amounts using OrderCalculator
+        CalculationResult calculationResult = OrderCalculator.calculateTotal(orderItems, null); // Assuming no coupon for now
 
         // 4. Create and save Order
         Order tempOrder = Order.builder()
                 .user(user)
-                .totalAmount(totalAmount)
-                .discountAmount(discountAmount)
-                .deliveryFee(deliveryFee)
-                .finalAmount(finalAmount)
+                .totalAmount(calculationResult.getTotalAmount())
+                .discountAmount(calculationResult.getDiscountAmount())
+                .deliveryFee(calculationResult.getShippingFee())
+                .finalAmount(calculationResult.getFinalAmount())
                 .status(Order.OrderStatus.PENDING)
                 .createdAt(LocalDateTime.now())
                 // Address is missing in OrderRequest, assuming it will be added later or default
