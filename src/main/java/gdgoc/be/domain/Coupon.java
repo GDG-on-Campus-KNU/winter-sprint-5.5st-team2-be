@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -35,6 +36,9 @@ public class Coupon {
     @Column(name = "min_order_amount", nullable = false, precision = 19, scale = 2)
     @Builder.Default
     private BigDecimal minOrderAmount = BigDecimal.ZERO;
+
+    @Column(name = "expiry_date")
+    private LocalDateTime expiryDate;
 
     public enum DiscountType {
         PERCENT, FIXED

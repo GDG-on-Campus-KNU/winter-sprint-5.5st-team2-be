@@ -44,6 +44,9 @@ public class Order {
     @Column(name = "final_amount", nullable = false, precision = 19, scale = 2)
     private BigDecimal finalAmount;
 
+    @Column(name = "coupon_id")
+    private Long couponId;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     private OrderStatus status; // PENDING, COMPLETED, CANCELLED
