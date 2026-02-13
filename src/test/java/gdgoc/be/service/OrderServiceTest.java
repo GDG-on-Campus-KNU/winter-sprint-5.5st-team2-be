@@ -15,6 +15,8 @@ import gdgoc.be.domain.Coupon;
 import gdgoc.be.domain.UserCoupon;
 import gdgoc.be.dto.OrderRequest;
 import gdgoc.be.dto.OrderResponse;
+import gdgoc.be.exception.BusinessErrorCode;
+import gdgoc.be.exception.BusinessException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -126,9 +128,9 @@ class OrderServiceTest {
         when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         // When & Then
-        RuntimeException exception = assertThrows(RuntimeException.class,
+        BusinessException exception = assertThrows(BusinessException.class,
                 () -> orderService.createOrder(999L, orderRequest));
-        assertThat(exception.getMessage()).isEqualTo("USER_NOT_FOUND");
+        assertThat(exception.getErrorCode()).isEqualTo(BusinessErrorCode.USER_NOT_FOUND);
 
         verify(userRepository, times(1)).findById(anyLong());
         verifyNoInteractions(menuRepository, orderRepository, orderItemRepository);
@@ -149,9 +151,9 @@ class OrderServiceTest {
         when(menuRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         // When & Then
-        RuntimeException exception = assertThrows(RuntimeException.class,
+        BusinessException exception = assertThrows(BusinessException.class,
                 () -> orderService.createOrder(testUser.getId(), orderRequest));
-        assertThat(exception.getMessage()).isEqualTo("MENU_NOT_FOUND: " + itemRequest.getMenuId());
+        assertThat(exception.getErrorCode()).isEqualTo(BusinessErrorCode.MENU_NOT_FOUND);
 
         verify(userRepository, times(1)).findById(testUser.getId());
         verify(menuRepository, times(1)).findById(itemRequest.getMenuId());
@@ -173,9 +175,9 @@ class OrderServiceTest {
         when(menuRepository.findById(testMenu1.getId())).thenReturn(Optional.of(testMenu1));
 
         // When & Then
-        RuntimeException exception = assertThrows(RuntimeException.class,
+        BusinessException exception = assertThrows(BusinessException.class,
                 () -> orderService.createOrder(testUser.getId(), orderRequest));
-        assertThat(exception.getMessage()).isEqualTo("재고가 부족합니다.");
+        assertThat(exception.getErrorCode()).isEqualTo(BusinessErrorCode.OUT_OF_STOCK);
 
         verify(userRepository, times(1)).findById(testUser.getId());
         verify(menuRepository, times(1)).findById(testMenu1.getId());
@@ -187,30 +189,33 @@ class OrderServiceTest {
     void getOrdersByUser_Success() {
         // Given
         Order order1 = Order.builder()
-                .id(10L)
                 .user(testUser)
                 .totalAmount(BigDecimal.valueOf(10000))
                 .finalAmount(BigDecimal.valueOf(10000))
-                .status(Order.OrderStatus.COMPLETED)
-                .createdAt(LocalDateTime.now())
                 .address("Default Address")
-                .orderItems(List.of(
-                        OrderItem.builder().id(100L).menu(testMenu1).quantity(1).orderPrice(BigDecimal.valueOf(10000)).build()
-                ))
                 .build();
+        order1.setId(10L);
+        order1.setStatus(Order.OrderStatus.COMPLETED);
+        order1.setCreatedAt(LocalDateTime.now());
+        OrderItem orderItem1 = OrderItem.builder().menu(testMenu1).quantity(1).orderPrice(BigDecimal.valueOf(10000)).build();
+        orderItem1.setId(100L);
+        order1.addOrderItem(orderItem1);
+
         Order order2 = Order.builder()
-                .id(11L)
                 .user(testUser)
                 .totalAmount(BigDecimal.valueOf(20000))
                 .finalAmount(BigDecimal.valueOf(20000))
-                .status(Order.OrderStatus.PENDING)
-                .createdAt(LocalDateTime.now().minusHours(1))
                 .address("Another Address")
-                .orderItems(List.of(
-                        OrderItem.builder().id(101L).menu(testMenu2).quantity(1).orderPrice(BigDecimal.valueOf(15000)).build(),
-                        OrderItem.builder().id(102L).menu(testMenu1).quantity(0).orderPrice(BigDecimal.valueOf(5000)).build()
-                ))
                 .build();
+        order2.setId(11L);
+        order2.setStatus(Order.OrderStatus.PENDING);
+        order2.setCreatedAt(LocalDateTime.now().minusHours(1));
+        OrderItem orderItem2 = OrderItem.builder().menu(testMenu2).quantity(1).orderPrice(BigDecimal.valueOf(15000)).build();
+        orderItem2.setId(101L);
+        OrderItem orderItem3 = OrderItem.builder().menu(testMenu1).quantity(0).orderPrice(BigDecimal.valueOf(5000)).build();
+        orderItem3.setId(102L);
+        order2.addOrderItem(orderItem2);
+        order2.addOrderItem(orderItem3);
 
 
         when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
@@ -236,9 +241,9 @@ class OrderServiceTest {
         when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         // When & Then
-        RuntimeException exception = assertThrows(RuntimeException.class,
+        BusinessException exception = assertThrows(BusinessException.class,
                 () -> orderService.getOrdersByUser(999L));
-        assertThat(exception.getMessage()).isEqualTo("USER_NOT_FOUND");
+        assertThat(exception.getErrorCode()).isEqualTo(BusinessErrorCode.USER_NOT_FOUND);
 
         verify(userRepository, times(1)).findById(anyLong());
         verifyNoInteractions(orderRepository, orderItemRepository, menuRepository);
@@ -267,18 +272,17 @@ class OrderServiceTest {
     void getOrderDetails_Success() {
         // Given
         Order order = Order.builder()
-                .id(1L)
                 .user(testUser)
                 .totalAmount(BigDecimal.valueOf(10000))
                 .finalAmount(BigDecimal.valueOf(10000))
-                .status(Order.OrderStatus.COMPLETED)
-                .createdAt(LocalDateTime.now())
                 .address("Default Address")
-                .build(); // Build order first without orderItems
-        // Then create orderItem using the created order
-        OrderItem orderItem = OrderItem.builder().id(100L).order(order).menu(testMenu1).quantity(1).orderPrice(BigDecimal.valueOf(10000)).build();
-        // Now set the orderItems on the order object
-        order.setOrderItems(List.of(orderItem));
+                .build();
+        order.setId(1L);
+        order.setStatus(Order.OrderStatus.COMPLETED);
+        order.setCreatedAt(LocalDateTime.now());
+        OrderItem orderItem = OrderItem.builder().menu(testMenu1).quantity(1).orderPrice(BigDecimal.valueOf(10000)).build();
+        orderItem.setId(100L);
+        order.addOrderItem(orderItem);
 
 
 
@@ -307,9 +311,9 @@ class OrderServiceTest {
         when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         // When & Then
-        RuntimeException exception = assertThrows(RuntimeException.class,
+        BusinessException exception = assertThrows(BusinessException.class,
                 () -> orderService.getOrderDetails(999L, 1L));
-        assertThat(exception.getMessage()).isEqualTo("USER_NOT_FOUND");
+        assertThat(exception.getErrorCode()).isEqualTo(BusinessErrorCode.USER_NOT_FOUND);
 
         verify(userRepository, times(1)).findById(anyLong());
         verifyNoInteractions(orderRepository, orderItemRepository, menuRepository);
@@ -323,9 +327,9 @@ class OrderServiceTest {
         when(orderRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         // When & Then
-        RuntimeException exception = assertThrows(RuntimeException.class,
+        BusinessException exception = assertThrows(BusinessException.class,
                 () -> orderService.getOrderDetails(testUser.getId(), 999L));
-        assertThat(exception.getMessage()).isEqualTo("ORDER_NOT_FOUND: 999");
+        assertThat(exception.getErrorCode()).isEqualTo(BusinessErrorCode.ORDER_NOT_FOUND);
 
         verify(userRepository, times(1)).findById(testUser.getId());
         verify(orderRepository, times(1)).findById(anyLong());
@@ -353,18 +357,16 @@ class OrderServiceTest {
         when(userCouponRepository.findByIdAndUserId(anyLong(), anyLong())).thenReturn(Optional.of(userCoupon));
 
         Order savedOrder = Order.builder()
-                .id(1L)
                 .user(testUser)
                 .totalAmount(BigDecimal.valueOf(20000))
                 .discountAmount(BigDecimal.valueOf(5000))
                 .deliveryFee(BigDecimal.valueOf(3000)) // 20000-5000 = 15000 < 30000 이므로 배송비 3000원
                 .finalAmount(BigDecimal.valueOf(18000))
                 .couponId(orderRequest.getCouponId())
-                .status(Order.OrderStatus.PENDING)
-                .createdAt(LocalDateTime.now())
                 .address("Default Address")
-                .orderItems(new java.util.ArrayList<>())
                 .build();
+        savedOrder.setId(1L);
+        savedOrder.setCreatedAt(LocalDateTime.now());
         when(orderRepository.save(any(Order.class))).thenReturn(savedOrder);
         when(orderItemRepository.save(any(OrderItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(userCouponRepository.save(any(UserCoupon.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -413,18 +415,16 @@ class OrderServiceTest {
         when(userCouponRepository.findByIdAndUserId(anyLong(), anyLong())).thenReturn(Optional.of(userCoupon));
 
         Order savedOrder = Order.builder()
-                .id(1L)
                 .user(testUser)
                 .totalAmount(BigDecimal.valueOf(30000))
                 .discountAmount(BigDecimal.valueOf(6000)) // 30000 * 20% = 6000
                 .deliveryFee(BigDecimal.ZERO) // 30000-6000 = 24000 < 30000 이지만 OrderCalculator에서 무료배송조건이 totalAmount 기준인듯
                 .finalAmount(BigDecimal.valueOf(24000)) // 30000 - 6000 = 24000
                 .couponId(orderRequest.getCouponId())
-                .status(Order.OrderStatus.PENDING)
-                .createdAt(LocalDateTime.now())
                 .address("Default Address")
-                .orderItems(new java.util.ArrayList<>())
                 .build();
+        savedOrder.setId(1L);
+        savedOrder.setCreatedAt(LocalDateTime.now());
         when(orderRepository.save(any(Order.class))).thenReturn(savedOrder);
         when(orderItemRepository.save(any(OrderItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(userCouponRepository.save(any(UserCoupon.class))).thenAnswer(invocation -> invocation.getArgument(0));
