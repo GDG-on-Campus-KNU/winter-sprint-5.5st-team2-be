@@ -49,7 +49,4 @@ public class OrderItem {
                 .build();
     }
 
-    public void serOrder(Order order) {
-        this.order = order;
-    }
 }

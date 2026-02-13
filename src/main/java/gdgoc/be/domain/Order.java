@@ -80,10 +80,10 @@ public class Order {
     public static Order createOrder(User user, CalculationResult result, Long couponId, String address) {
         return Order.builder()
                 .user(user)
-                .totalAmount(result.getTotalAmount())
-                .discountAmount(result.getDiscountAmount())
-                .deliveryFee(result.getShippingFee())
-                .finalAmount(result.getFinalAmount())
+                .totalAmount(result.totalAmount())
+                .discountAmount(result.discountAmount())
+                .deliveryFee(result.shippingFee())
+                .finalAmount(result.finalAmount())
                 .couponId(couponId)
                 .address(address)
                 .build();

@@ -36,7 +36,7 @@ public class OrderService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
 
-        Long couponId = request.getCouponId();
+        Long couponId = request.couponId();
         gdgoc.be.domain.Coupon coupon = null;
         gdgoc.be.domain.UserCoupon userCoupon = null;
         if (couponId != null) {
@@ -54,27 +54,23 @@ public class OrderService {
         }
 
         // 2. 상품 유효성 검사 및 재고 확인
-        List<OrderItem> orderItems = request.getOrderItems().stream().map(itemRequest -> {
-            Menu menu = menuRepository.findById(itemRequest.getMenuId())
+        List<OrderItem> orderItems = request.orderItems().stream().map(itemRequest -> {
+            Menu menu = menuRepository.findById(itemRequest.menuId())
                     .orElseThrow(() -> new BusinessException(BusinessErrorCode.MENU_NOT_FOUND));
 
-            if (menu.getStock() < itemRequest.getQuantity()) {
+            if (menu.getStock() < itemRequest.quantity()) {
                 throw new BusinessException(BusinessErrorCode.OUT_OF_STOCK);
             }
 
             // 가격 계산을 위해 임시로 OrderItem 생성, 나중에 저장됨
-            return OrderItem.builder()
-                    .menu(menu)
-                    .quantity(itemRequest.getQuantity())
-                    .orderPrice(BigDecimal.valueOf(menu.getPrice()).multiply(BigDecimal.valueOf(itemRequest.getQuantity())))
-                    .build();
+            return OrderItem.createOrderItem(menu,itemRequest.quantity());
         }).collect(Collectors.toList());
 
         // 3. OrderCalculator를 사용하여 총 금액 계산
         CalculationResult calculationResult = OrderCalculator.calculateTotal(orderItems, coupon);
 
         // 4. 주문 생성 및 저장
-        Order order=  Order.createOrder(user,calculationResult, request.getCouponId(), "Default Address");
+        Order order=  Order.createOrder(user,calculationResult, request.couponId(), "Default Address");
 
         // 5. 주문 상품 저장 및 재고 차감
         orderItems.forEach(orderItem -> {
