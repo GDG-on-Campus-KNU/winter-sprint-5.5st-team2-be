@@ -3,7 +3,7 @@
 | **항목** | **설정값** | **비고** |
 | --- | --- | --- |
 | **Java Version** | `21` | 가상 스레드(Virtual Threads) 및 패턴 매칭 활용 가능 |
-| **Spring Boot** | `4.0.2` | 최신 사양 및 Jakarta EE 기준 준수 |
+| **Spring Boot** | `3.4.2` | 최신 사양 및 Jakarta EE 기준 준수 |
 | **Build Tool** | `Gradle - Groovy` | `build.gradle` 형식 사용 |
 | **Packaging** | `Jar` | - |
 | **Configuration** | `application.properties` | YAML 대신 Properties 형식을 우선 사용 |
@@ -22,7 +22,7 @@
 ```java
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '4.0.2'
+	id 'org.springframework.boot' version '3.4.2' // 4.0.2에서 안정적인 3.4.2로 변경
 	id 'io.spring.dependency-management' version '1.1.7'
 }
 
@@ -32,26 +32,36 @@ description = 'Demo project for Spring Boot'
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
 	}
 }
 
 repositories {
 	mavenCentral()
 }
-
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-h2console'
-	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+	// 명칭 수정: spring-boot-starter-session-jdbc -> spring-session-jdbc
+	implementation 'org.springframework.session:spring-session-jdbc'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// Swagger
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.4'
+
+	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.h2database:h2'
-	testImplementation 'org.springframework.boot:spring-boot-starter-data-jdbc-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
-
 tasks.named('test') {
 	useJUnitPlatform()
 }
