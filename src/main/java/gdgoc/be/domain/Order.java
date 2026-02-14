@@ -2,7 +2,6 @@ package gdgoc.be.domain;
 
 import gdgoc.be.dto.CalculationResult;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

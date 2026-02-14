@@ -26,40 +26,36 @@ public class CartService {
 
     public void addMenuToCart(Long userId, long menuId, int quantity) {
 
-        Menu menu = menuRepository.findById(menuId)
-                .orElseThrow(() -> new BusinessException(BusinessErrorCode.MENU_NOT_FOUND));
+        Menu menu = findMenuById(menuId);
 
-        if(menu.getStock() < quantity) {
-            throw new BusinessException(BusinessErrorCode.OUT_OF_STOCK);
-        }
+        CartItem cartItem = cartItemRepository.findByUserIdAndMenuId(userId,menuId)
+                .orElseGet(() -> CartItem.createEmptyCartItem(userId, menu));
 
-        cartItemRepository.findByUserIdAndMenuId(userId, menuId)
-                .ifPresentOrElse(
-                        cartItem -> {
-                            if (menu.getStock() < cartItem.getQuantity() + quantity) {
-                                throw new BusinessException(BusinessErrorCode.OUT_OF_STOCK);
-                            }
-                            cartItem.addQuantity(quantity);
-                        },
-                        () -> {
-                            CartItem newItem = CartItem.createCartItem(userId, menu,quantity);
-                            cartItemRepository.save(newItem);
-                        }
-                );
+        cartItem.addQuantityWithStockCheck(quantity);
+        cartItemRepository.save(cartItem);
+
     }
 
     public void updateCartItemQuantity(Long itemId, int quantity) {
-        CartItem cartItem = cartItemRepository.findById(itemId)
-                .orElseThrow(() -> new BusinessException(BusinessErrorCode.INVALID_CART));
 
-        if (quantity <= 0) {
+        CartItem cartItem = findCartItemById(itemId);
+
+        if(quantity <= 0 ) {
             cartItemRepository.delete(cartItem);
-        } else {
-            if (cartItem.getMenu().getStock() < quantity) {
-                throw new BusinessException(BusinessErrorCode.OUT_OF_STOCK);
-            }
-            cartItem.updateQuantity(quantity);
+            return;
         }
+
+        cartItem.updateQuantityWithStockCheck(quantity);
+    }
+
+    private Menu findMenuById(Long menuId) {
+        return menuRepository.findById(menuId)
+                .orElseThrow(() -> new BusinessException(BusinessErrorCode.MENU_NOT_FOUND));
+    }
+
+    private CartItem findCartItemById(Long itemId) {
+        return cartItemRepository.findById(itemId)
+                .orElseThrow(() -> new BusinessException(BusinessErrorCode.INVALID_CART));
     }
 
     public void deleteSelectedItems(List<Long> itemIds) {

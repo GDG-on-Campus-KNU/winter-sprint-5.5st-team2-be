@@ -1,6 +1,8 @@
 package gdgoc.be.domain;
 
 
+import gdgoc.be.exception.BusinessErrorCode;
+import gdgoc.be.exception.BusinessException;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -33,11 +35,11 @@ public class CartItem {
         this.quantity = quantity;
     }
 
+
     public void addQuantity(int amount) {
         this.quantity += amount;
     }
 
-    // 수량 업데이트 메서드
     public void updateQuantity(int quantity) {
         this.quantity = quantity;
     }
@@ -48,5 +50,31 @@ public class CartItem {
                 .menu(menu)
                 .quantity(quantity)
                 .build();
+    }
+
+    public static CartItem createEmptyCartItem(Long userId, Menu menu) {
+
+        return CartItem.builder()
+                .userId(userId)
+                .menu(menu)
+                .quantity(0)
+                .build();
+    }
+
+    public void updateQuantityWithStockCheck(int newQuantity) {
+        validateStock(newQuantity);
+        this.quantity = newQuantity;
+    }
+
+    public void addQuantityWithStockCheck(int additionQuantity) {
+        int totalQuantity = this.quantity + additionQuantity;
+        validateStock(totalQuantity);
+        this.quantity = totalQuantity;
+    }
+
+    private void validateStock(int targetQuantity) {
+        if(this.menu.getStock() < targetQuantity) {
+            throw new BusinessException(BusinessErrorCode.OUT_OF_STOCK);
+        }
     }
 }

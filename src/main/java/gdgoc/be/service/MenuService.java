@@ -9,32 +9,38 @@ import gdgoc.be.exception.BusinessErrorCode;
 import gdgoc.be.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class MenuService {
 
     private final MenuRepository menuRepository;
 
     public List<MenuResponse> findAllMenus(String category, String search, String sort) {
 
-        List<Menu> menus;
         if(category != null) {
-            menus = menuRepository.findByCategory(Category.valueOf(category));
-        }
-        else if(search != null) {
-            menus = menuRepository.findByNameContaining(search);
-        }
-        else {
-            menus = menuRepository.findAll();
+            return menuRepository.findByCategory(Category.valueOf(category))
+                    .stream()
+                    .map(MenuResponse::from)
+                    .collect(Collectors.toList());
         }
 
-        return menus.stream()
+        if(search != null) {
+            return menuRepository.findByNameContaining(search)
+                    .stream()
+                    .map(MenuResponse::from)
+                    .collect(Collectors.toList());
+        }
+
+        return menuRepository.findAll()
+                .stream()
                 .map(MenuResponse::from)
                 .collect(Collectors.toList());
-
     }
 
     public MenuDetailResponse findMenuDetail(Long id) {
