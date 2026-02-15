@@ -13,8 +13,11 @@ import gdgoc.be.domain.User;
 import gdgoc.be.domain.Coupon;
 import gdgoc.be.domain.UserCoupon;
 import gdgoc.be.dto.CalculationResult;
+import gdgoc.be.dto.OrderItemRequest;
 import gdgoc.be.dto.OrderRequest;
 import gdgoc.be.dto.OrderResponse;
+import gdgoc.be.exception.BusinessErrorCode;
+import gdgoc.be.exception.BusinessException;
 import gdgoc.be.service.OrderCalculator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -38,93 +41,56 @@ public class OrderService {
     private final UserCouponRepository userCouponRepository;
 
     public OrderResponse createOrder(Long userId, OrderRequest request) {
-        // 1. 사용자 및 쿠폰 ID 가져오기
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("USER_NOT_FOUND"));
 
-        Long couponId = request.getCouponId();
-        gdgoc.be.domain.Coupon coupon = null;
-        gdgoc.be.domain.UserCoupon userCoupon = null;
-        if (couponId != null) {
-            userCoupon = userCouponRepository.findByIdAndUserId(couponId, userId)
-                    .orElseThrow(() -> new RuntimeException("USER_COUPON_NOT_FOUND_OR_NOT_OWNED: " + couponId));
+        UserCoupon userCoupon = findAndValidateCoupon(userId, request.couponId());
+        Coupon coupon = (userCoupon != null) ? userCoupon.getCoupon() : null;
 
-            if (userCoupon.isUsed()) {
-                throw new RuntimeException("COUPON_ALREADY_USED: " + couponId);
-            }
+        List<OrderItem> orderItems = createOrderItems(request.orderItems());
 
-            coupon = userCoupon.getCoupon();
-            if (coupon.getExpiryDate() != null && coupon.getExpiryDate().isBefore(LocalDateTime.now())) {
-                throw new RuntimeException("COUPON_EXPIRED: " + couponId);
-            }
-        }
+        CalculationResult result = OrderCalculator.calculateTotal(orderItems, coupon);
 
-        // 2. 상품 유효성 검사 및 재고 확인
-        List<OrderItem> orderItems = request.getOrderItems().stream().map(itemRequest -> {
-            Menu menu = menuRepository.findById(itemRequest.getMenuId())
-                    .orElseThrow(() -> new RuntimeException("MENU_NOT_FOUND: " + itemRequest.getMenuId()));
+        Order order = Order.createOrder(user, result, request.couponId(), "Default Address");
 
-            if (menu.getStock() < itemRequest.getQuantity()) {
-                throw new RuntimeException("OUT_OF_STOCK for menu: " + menu.getName());
-            }
-
-            // 가격 계산을 위해 임시로 OrderItem 생성, 나중에 저장됨
-            return OrderItem.builder()
-                    .menu(menu)
-                    .quantity(itemRequest.getQuantity())
-                    .orderPrice(BigDecimal.valueOf(menu.getPrice()).multiply(BigDecimal.valueOf(itemRequest.getQuantity())))
-                    .build();
-        }).collect(Collectors.toList());
-
-        // 3. OrderCalculator를 사용하여 총 금액 계산
-        CalculationResult calculationResult = OrderCalculator.calculateTotal(orderItems, coupon);
-
-        // 4. 주문 생성 및 저장
-        Order tempOrder = Order.builder()
-                .user(user)
-                .totalAmount(calculationResult.getTotalAmount())
-                .discountAmount(calculationResult.getDiscountAmount())
-                .deliveryFee(calculationResult.getShippingFee())
-                .finalAmount(calculationResult.getFinalAmount())
-                .couponId(couponId)
-                .status(Order.OrderStatus.PENDING)
-                .createdAt(LocalDateTime.now())
-                // OrderRequest에 주소가 누락됨, 나중에 추가되거나 기본값으로 가정
-                .address("Default Address") // 임시 값
-                .build();
-        final Order savedOrder = orderRepository.save(tempOrder);
-
-        // 5. 주문 상품 저장 및 재고 차감
-        orderItems.forEach(orderItem -> {
-            savedOrder.addOrderItem(orderItem); // 주문과 주문 상품 연관
-            orderItemRepository.save(orderItem);
-
-            // 재고 차감
-            Menu menu = orderItem.getMenu();
-            menu.setStock(menu.getStock() - orderItem.getQuantity());
-            menuRepository.save(menu);
-        });
-
-        // 6. 쿠폰을 사용했으면 사용됨으로 표시
+        orderItems.forEach(order::addOrderItem);
         if (userCoupon != null) {
-            userCoupon.setUsed(true);
-            userCouponRepository.save(userCoupon);
+            userCoupon.use();
         }
 
-        // 응답 매핑을 위해 주문에 업데이트된 orderItems 목록이 있는지 확인
-        savedOrder.setOrderItems(orderItems);
+        return OrderResponse.from(orderRepository.save(order));
 
+    }
 
-        return OrderResponse.from(savedOrder);
+    private UserCoupon findAndValidateCoupon(Long userId, Long couponId) {
+        if (couponId == null) return null;
+
+        UserCoupon userCoupon = userCouponRepository.findByIdAndUserId(couponId, userId)
+                .orElseThrow(() -> new RuntimeException("COUPON_NOT_FOUND"));
+
+        userCoupon.validate();
+
+        return userCoupon;
+    }
+
+    private List<OrderItem> createOrderItems(List<OrderItemRequest> itemRequests) {
+
+        return itemRequests.stream().map(itemRequest -> {
+            Menu menu = menuRepository.findById(itemRequest.menuId())
+                    .orElseThrow(() -> new RuntimeException("MENU_NOT_FOUND"));
+
+            menu.reduceStock(itemRequest.quantity());
+            return OrderItem.createOrderItem(menu, itemRequest.quantity());
+        }).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public List<OrderResponse> getOrdersByUser(Long userId) {
-        // 사용자가 주문에 연결되어 있지 않으면 findByUser_Id가 예외를 발생시키지만, 사용자 존재 유효성 검사
-        userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("USER_NOT_FOUND"));
 
-        List<Order> orders = orderRepository.findByUser_Id(userId); // 도메인 모델에 따라 findByUser_Id 사용
+        validateUserExists(userId);
+
+        List<Order> orders = orderRepository.findByUser_Id(userId);
 
         return orders.stream()
                 .map(OrderResponse::from)
@@ -133,17 +99,17 @@ public class OrderService {
 
     @Transactional(readOnly = true)
     public OrderResponse getOrderDetails(Long userId, Long orderId) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("USER_NOT_FOUND"));
+        validateUserExists(userId);
 
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("ORDER_NOT_FOUND: " + orderId));
-
-        // [권한 부여 - ]
-        // if (!order.getUser().getId().equals(userId)) {
-        //     throw new RuntimeException("UNAUTHORIZED_ACCESS: Order does not belong to user");
-        // }
+                .orElseThrow(() -> new BusinessException(BusinessErrorCode.ORDER_NOT_FOUND));
 
         return OrderResponse.from(order);
+    }
+
+    private void validateUserExists(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new BusinessException(BusinessErrorCode.USER_NOT_FOUND);
+        }
     }
 }
