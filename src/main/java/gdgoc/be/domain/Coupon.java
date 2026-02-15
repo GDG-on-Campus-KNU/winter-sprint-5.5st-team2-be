@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 @Entity
@@ -62,5 +63,23 @@ public class Coupon {
                 .minOrderAmount(minAmount)
                 .expiryDate(expiry)
                 .build();
+    }
+
+    public BigDecimal calculateDiscount(BigDecimal totalAmount) {
+
+        if (totalAmount.compareTo(this.minOrderAmount) < 0) {
+            return BigDecimal.ZERO;
+        }
+
+        BigDecimal discount = (this.discountType == DiscountType.PERCENT)
+                ? calculatePercentDiscount(totalAmount)
+                : this.discountValue;
+
+        return discount.min(totalAmount);
+    }
+
+    private BigDecimal calculatePercentDiscount(BigDecimal totalAmount) {
+        return totalAmount.multiply(this.discountValue)
+                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
     }
 }
