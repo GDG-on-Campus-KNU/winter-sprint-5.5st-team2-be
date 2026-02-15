@@ -1,9 +1,6 @@
 package gdgoc.be.dto;
 
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.AllArgsConstructor; // Add this import
 
 import java.math.BigDecimal;
 
