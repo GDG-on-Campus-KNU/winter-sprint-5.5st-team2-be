@@ -1,18 +1,23 @@
 package gdgoc.be.dto;
 
 
+import gdgoc.be.domain.Menu;
 import lombok.Builder;
-import lombok.Getter;
 
+@Builder
+public record MenuResponse(
+        Long id,
+        String name,
+        int price,
+        String category
+) {
 
-import lombok.*;
-import java.math.BigDecimal;
-
-@Getter @Builder
-@NoArgsConstructor @AllArgsConstructor
-public class MenuResponse {
-    private Long id;
-    private String name;
-    private int price;
-    private String category;
+    public static MenuResponse from(Menu menu) {
+        return MenuResponse.builder()
+                .id(menu.getId())
+                .name(menu.getName())
+                .price(menu.getPrice())
+                .category(menu.getCategory().name())
+                .build();
+    }
 }
