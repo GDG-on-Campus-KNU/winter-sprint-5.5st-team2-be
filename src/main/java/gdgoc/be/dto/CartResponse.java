@@ -1,20 +1,25 @@
 package gdgoc.be.dto;
 
 
-import lombok.AllArgsConstructor;
+import gdgoc.be.domain.CartItem;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
-@Getter
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class CartResponse {
+public record CartResponse(
+        Long itemId,
+        String menuName,
+        int price,
+        int quantity,
+        boolean isAvailable
+) {
 
-    private Long itemId;
-    private String menuName;
-    private int price;
-    private int quantity;
-    private boolean isAvailable; // [요구사항] 품절 여부 판단 필드
+    public static CartResponse from(CartItem item) {
+        return CartResponse.builder()
+                .itemId(item.getId())
+                .menuName(item.getMenu().getName())
+                .price(item.getMenu().getPrice())
+                .quantity(item.getQuantity())
+                .isAvailable(item.getMenu().getStock() >0)
+                .build();
+    }
 }
