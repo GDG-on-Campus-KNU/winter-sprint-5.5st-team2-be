@@ -1,21 +1,16 @@
 package gdgoc.be.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Setter
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 @Table(name = "coupon")
 public class Coupon {
 
@@ -34,7 +29,6 @@ public class Coupon {
     private BigDecimal discountValue;
 
     @Column(name = "min_order_amount", nullable = false, precision = 19, scale = 2)
-    @Builder.Default
     private BigDecimal minOrderAmount = BigDecimal.ZERO;
 
     @Column(name = "expiry_date")
@@ -42,5 +36,31 @@ public class Coupon {
 
     public enum DiscountType {
         PERCENT, FIXED
+    }
+
+    @Builder
+    private Coupon(String name, DiscountType discountType, BigDecimal discountValue,
+                   BigDecimal minOrderAmount, LocalDateTime expiryDate) {
+        this.name = name;
+        this.discountType = discountType;
+        this.discountValue = discountValue;
+        this.minOrderAmount = (minOrderAmount != null) ? minOrderAmount : BigDecimal.ZERO;
+        this.expiryDate = expiryDate;
+    }
+
+    public static Coupon createCoupon(String name, DiscountType type, BigDecimal value,
+                                      BigDecimal minAmount, LocalDateTime expiry) {
+
+        if (value.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("할인 값은 0보다 커야 합니다.");
+        }
+
+        return Coupon.builder()
+                .name(name)
+                .discountType(type)
+                .discountValue(value)
+                .minOrderAmount(minAmount)
+                .expiryDate(expiry)
+                .build();
     }
 }

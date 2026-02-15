@@ -1,16 +1,16 @@
 package gdgoc.be.domain;
 
 
+import gdgoc.be.exception.BusinessErrorCode;
+import gdgoc.be.exception.BusinessException;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
 @Getter
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"user_id", "menu_id"}) // [중요] 중복 담기 방지 제약
+        @UniqueConstraint(columnNames = {"user_id", "menu_id"})
 })
 public class CartItem {
 
@@ -19,7 +19,7 @@ public class CartItem {
     private Long id;
 
     @Column(name = "user_id", nullable = false, updatable = false)
-    private Long userId; // 임시 X-Userx-ID 식별용
+    private Long userId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name= "menu_id", nullable = false)
@@ -28,13 +28,53 @@ public class CartItem {
     @Column(nullable = false)
     private int quantity;
 
-    // 수량 증가 메서드
+    @Builder
+    public CartItem(Long userId, Menu menu, int quantity) {
+        this.userId = userId;
+        this.menu = menu;
+        this.quantity = quantity;
+    }
+
+
     public void addQuantity(int amount) {
         this.quantity += amount;
     }
 
-    // 수량 업데이트 메서드
     public void updateQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    public static CartItem createCartItem(Long userId, Menu menu, int quantity) {
+        return CartItem.builder()
+                .userId(userId)
+                .menu(menu)
+                .quantity(quantity)
+                .build();
+    }
+
+    public static CartItem createEmptyCartItem(Long userId, Menu menu) {
+
+        return CartItem.builder()
+                .userId(userId)
+                .menu(menu)
+                .quantity(0)
+                .build();
+    }
+
+    public void updateQuantityWithStockCheck(int newQuantity) {
+        validateStock(newQuantity);
+        this.quantity = newQuantity;
+    }
+
+    public void addQuantityWithStockCheck(int additionQuantity) {
+        int totalQuantity = this.quantity + additionQuantity;
+        validateStock(totalQuantity);
+        this.quantity = totalQuantity;
+    }
+
+    private void validateStock(int targetQuantity) {
+        if(this.menu.getStock() < targetQuantity) {
+            throw new BusinessException(BusinessErrorCode.OUT_OF_STOCK);
+        }
     }
 }

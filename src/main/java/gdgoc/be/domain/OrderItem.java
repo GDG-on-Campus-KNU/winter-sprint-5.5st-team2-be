@@ -1,20 +1,14 @@
 package gdgoc.be.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 
 @Entity
 @Getter
 @Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "order_item")
 public class OrderItem {
 
@@ -35,4 +29,24 @@ public class OrderItem {
 
     @Column(name = "order_price", nullable = false, precision = 19, scale = 2)
     private BigDecimal orderPrice;
+
+    @Builder
+    private OrderItem(Menu menu, int quantity, BigDecimal orderPrice) {
+        this.menu = menu;
+        this.quantity =quantity;
+        this.orderPrice = orderPrice;
+    }
+
+    public static OrderItem createOrderItem(Menu menu, int quantity) {
+
+        BigDecimal calculatedPrice = BigDecimal.valueOf(menu.getPrice())
+                .multiply(BigDecimal.valueOf(quantity));
+
+        return OrderItem.builder()
+                .menu(menu)
+                .quantity(quantity)
+                .orderPrice(calculatedPrice)
+                .build();
+    }
+
 }

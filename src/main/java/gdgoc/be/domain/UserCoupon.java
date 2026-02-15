@@ -1,18 +1,12 @@
 package gdgoc.be.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Getter
 @Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "user_coupon")
 public class UserCoupon {
 
@@ -29,8 +23,23 @@ public class UserCoupon {
     private Coupon coupon;
 
     @Column(name = "is_used", nullable = false)
-    @Builder.Default
-    private Boolean isUsed = false;
+    private Boolean isUsed;
+
+    @Builder
+    private UserCoupon(Long id, User user, Coupon coupon, Boolean isUsed) {
+        this.id = id;
+        this.user = user;
+        this.coupon = coupon;
+        this.isUsed = isUsed;
+    }
+
+    public static UserCoupon createUserCoupon(User user, Coupon coupon) {
+        return UserCoupon.builder()
+                .user(user)
+                .coupon(coupon)
+                .isUsed(false) // 초기 발급 시에는 사용하지 않은 상태로 고정
+                .build();
+    }
 
     public boolean isUsed() {
         return this.isUsed;
