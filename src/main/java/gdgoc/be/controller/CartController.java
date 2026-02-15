@@ -32,7 +32,7 @@ public class CartController {
     public ApiResponse<String> addToCart(
             @RequestHeader("X-USER-ID") Long userId,
             @Valid @RequestBody CartRequest request) {
-        cartService.addMenuToCart(userId, request.getMenuId(), request.getQuantity());
+        cartService.addMenuToCart(userId, request.menuId(), request.quantity());
         return ApiResponse.success("장바구니에 상품을 담았습니다.");
     }
 
@@ -42,7 +42,7 @@ public class CartController {
             @PathVariable Long itemId,
             @RequestBody CartRequest request) {
         //[요구사항] 수량이 0 이하이면 서비스에서 자동 삭제
-        cartService.updateCartItemQuantity(itemId, request.getQuantity());
+        cartService.updateCartItemQuantity(itemId, request.quantity());
         return ApiResponse.success("수량이 변경되었습니다.");
     }
 
@@ -50,7 +50,7 @@ public class CartController {
     @DeleteMapping
     public ApiResponse<String> deleteCartItems(@RequestBody CartDeleteRequest request) {
         // [요구사항] itemIds 배열을 한 번에 삭제
-        cartService.deleteSelectedItems(request.getItemIds());
+        cartService.deleteSelectedItems(request.itemIds());
         return ApiResponse.success("선택한 상품들을 삭제했습니다.");
     }
 }
