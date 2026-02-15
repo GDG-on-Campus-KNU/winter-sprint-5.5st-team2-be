@@ -35,3 +35,28 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# Log files
+*.log
+logs/
+target/
+
+# Package Files
+*.jar
+*.war
+*.zip
+*.tar.gz
+
+# Maven artifacts (if any are generated/used)
+/pom.xml.tag
+/pom.xml.releaseBackup
+/pom.xml.versionsBackup
+/pom.xml.next
+/release.properties
+/dependency-reduced-pom.xml
+
+# temp files
+*.tmp
+*.temp
+*.swp
+
