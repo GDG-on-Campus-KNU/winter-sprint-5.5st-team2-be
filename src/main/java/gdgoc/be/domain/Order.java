@@ -15,7 +15,6 @@ import java.util.List;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 @Table(name = "orders") // Changed from "order" to "orders" based on schema
 public class Order {
