@@ -1,6 +1,8 @@
 package gdgoc.be.domain;
 
 
+import gdgoc.be.exception.BusinessErrorCode;
+import gdgoc.be.exception.BusinessException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.*;
@@ -71,5 +73,12 @@ public class Menu {
                 .isAvailable(stock >0)
                 .category(cat)
                 .build();
+    }
+
+    public void reduceStock(int quantity) {
+        if (this.stock < quantity) {
+            throw new BusinessException(BusinessErrorCode.OUT_OF_STOCK);
+        }
+        this.stock -= quantity;
     }
 }
