@@ -5,7 +5,6 @@ import gdgoc.be.dto.MenuDetailResponse;
 import gdgoc.be.dto.MenuResponse;
 import gdgoc.be.service.MenuService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
