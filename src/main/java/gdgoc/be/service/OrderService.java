@@ -66,7 +66,7 @@ public class OrderService {
 
         return itemRequests.stream().map(itemRequest -> {
             Menu menu = menuRepository.findById(itemRequest.menuId())
-                    .orElseThrow(() -> new RuntimeException("MENU_NOT_FOUND"));
+                    .orElseThrow(() -> new BusinessException(BusinessErrorCode.MENU_NOT_FOUND));
 
             menu.reduceStock(itemRequest.quantity());
             return OrderItem.createOrderItem(menu, itemRequest.quantity());

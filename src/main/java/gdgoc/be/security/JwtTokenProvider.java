@@ -1,5 +1,6 @@
 package gdgoc.be.security;
 
+import gdgoc.be.domain.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -27,9 +28,10 @@ public class JwtTokenProvider {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String createToken(String email) {
+    public String createToken(String email, Role role) {
         Claims claims = Jwts.claims()
                 .subject(email)
+                .add("role", role.name())
                 .build();
 
         Date now = new Date();
@@ -41,6 +43,14 @@ public class JwtTokenProvider {
                 .expiration(validity)
                 .signWith(key)
                 .compact();
+    }
+    public String getRole(String token) {
+        return Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("role", String.class);
     }
 
     public String getEmail(String token) {

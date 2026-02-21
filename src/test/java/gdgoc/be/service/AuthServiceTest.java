@@ -53,7 +53,7 @@ class AuthServiceTest {
 
         given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
         given(passwordEncoder.matches(password, user.getPassword())).willReturn(true);
-        given(jwtTokenProvider.createToken(email)).willReturn("mock-token");
+        given(jwtTokenProvider.createToken(email, user.getRole())).willReturn("mock-token");
 
         // when
         LoginResponse response = authService.login(request);
