@@ -8,9 +8,11 @@ import java.util.Optional;
 
 public interface CartItemRepository extends JpaRepository<CartItem, Long> {
 
-    // 특정 유저의 장바구니에 특정 메뉴가 있는 지를 확인
+    List<CartItem> findByUserEmail(String email);
+
+    Optional<CartItem> findByUserEmailAndMenuId(String email, Long menuId);
+
     Optional<CartItem> findByUserIdAndMenuId(Long userId, Long menuId);
 
-    // 2. 특정 유저의 장바구니 전체 목록 조회
     List<CartItem> findByUserId(Long userId);
 }
