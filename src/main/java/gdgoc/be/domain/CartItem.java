@@ -18,8 +18,9 @@ public class CartItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false, updatable = false)
-    private Long userId;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false, updatable = false)
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name= "menu_id", nullable = false)
@@ -29,8 +30,8 @@ public class CartItem {
     private int quantity;
 
     @Builder
-    public CartItem(Long userId, Menu menu, int quantity) {
-        this.userId = userId;
+    public CartItem(User user, Menu menu, int quantity) {
+        this.user = user;
         this.menu = menu;
         this.quantity = quantity;
     }
@@ -44,18 +45,18 @@ public class CartItem {
         this.quantity = quantity;
     }
 
-    public static CartItem createCartItem(Long userId, Menu menu, int quantity) {
+    public static CartItem createCartItem(User user, Menu menu, int quantity) {
         return CartItem.builder()
-                .userId(userId)
+                .user(user)
                 .menu(menu)
                 .quantity(quantity)
                 .build();
     }
 
-    public static CartItem createEmptyCartItem(Long userId, Menu menu) {
+    public static CartItem createEmptyCartItem(User user, Menu menu) {
 
         return CartItem.builder()
-                .userId(userId)
+                .user(user)
                 .menu(menu)
                 .quantity(0)
                 .build();
