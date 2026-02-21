@@ -13,6 +13,9 @@ public record OrderRequest(
         List<OrderItemRequest> orderItems,
 
         @Nullable
-        Long couponId
+        Long couponId,
+
+        @Nullable
+        String address
 ) {
 }
