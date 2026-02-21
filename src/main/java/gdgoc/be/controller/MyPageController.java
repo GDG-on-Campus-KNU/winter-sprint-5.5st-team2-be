@@ -2,6 +2,7 @@ package gdgoc.be.controller;
 
 
 import gdgoc.be.common.ApiResponse;
+import gdgoc.be.common.util.SecurityUtil;
 import gdgoc.be.dto.OrderResponse;
 import gdgoc.be.dto.UserCouponResponse;
 import gdgoc.be.service.OrderService;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,5 +34,12 @@ public class MyPageController {
     @GetMapping("/coupons")
     public ApiResponse<List<UserCouponResponse>> getMyCoupons(@AuthenticationPrincipal UserDetails userDetails) {
         return ApiResponse.success(orderService.getMyCoupons());
+    }
+
+    @Operation(summary = "내 주문 상세 조회")
+    @GetMapping("/orders/{id}")
+    public ApiResponse<OrderResponse> getMyOrderDetail(@PathVariable Long id) {
+        String email = SecurityUtil.getCurrentUserEmail();
+        return ApiResponse.success(orderService.getOrderDetails(id));
     }
 }
