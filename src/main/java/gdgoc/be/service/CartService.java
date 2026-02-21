@@ -3,8 +3,11 @@ package gdgoc.be.service;
 
 import gdgoc.be.Repository.CartItemRepository;
 import gdgoc.be.Repository.MenuRepository;
+import gdgoc.be.Repository.UserRepository;
+import gdgoc.be.common.util.SecurityUtil;
 import gdgoc.be.domain.CartItem;
 import gdgoc.be.domain.Menu;
+import gdgoc.be.domain.User;
 import gdgoc.be.dto.CartResponse;
 import gdgoc.be.exception.BusinessErrorCode;
 import gdgoc.be.exception.BusinessException;
@@ -23,17 +26,20 @@ public class CartService {
 
     private final CartItemRepository cartItemRepository;
     private final MenuRepository menuRepository;
+    private final UserRepository userRepository;
 
-    public void addMenuToCart(Long userId, long menuId, int quantity) {
+    public void addMenuToCart(long menuId, int quantity) {
 
+        String email = SecurityUtil.getCurrentUserEmail();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
         Menu menu = findMenuById(menuId);
 
-        CartItem cartItem = cartItemRepository.findByUserIdAndMenuId(userId,menuId)
-                .orElseGet(() -> CartItem.createEmptyCartItem(userId, menu));
+        CartItem cartItem = cartItemRepository.findByUserEmailAndMenuId(email,menuId)
+                        .orElseGet(() -> CartItem.createEmptyCartItem(user, menu));
 
         cartItem.addQuantityWithStockCheck(quantity);
         cartItemRepository.save(cartItem);
-
     }
 
     public void updateCartItemQuantity(Long itemId, int quantity) {
@@ -63,8 +69,9 @@ public class CartService {
     }
 
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
-    public List<CartResponse> getCartItems(Long userId) {
-        List<CartItem> items = cartItemRepository.findByUserId(userId);
+    public List<CartResponse> getCartItems() {
+        String email = SecurityUtil.getCurrentUserEmail();
+        List<CartItem> items = cartItemRepository.findByUserEmail(email);
 
         return items.stream()
                 .map(CartResponse::from)

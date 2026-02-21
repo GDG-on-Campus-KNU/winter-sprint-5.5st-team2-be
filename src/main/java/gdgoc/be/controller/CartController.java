@@ -8,6 +8,8 @@ import gdgoc.be.dto.CartResponse;
 import gdgoc.be.service.CartService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,22 +23,21 @@ public class CartController {
 
     // 1. 장바구니 목록 조회 (GET/api/cart)
     @GetMapping
-    public ApiResponse<List<CartResponse>> getCart(@RequestHeader("X-USER-ID")Long userId) {
+    public ApiResponse<List<CartResponse>> getCart() {
 
-        List<CartResponse> responses = cartService.getCartItems(userId);
+        List<CartResponse> responses = cartService.getCartItems();
         return ApiResponse.success(responses);
     }
 
     // 2. 장바구니 담기 (POST /api/cart)
     @PostMapping
     public ApiResponse<String> addToCart(
-            @RequestHeader("X-USER-ID") Long userId,
+            @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody CartRequest request) {
-        cartService.addMenuToCart(userId, request.menuId(), request.quantity());
+        cartService.addMenuToCart(request.menuId(), request.quantity());
         return ApiResponse.success("장바구니에 상품을 담았습니다.");
     }
 
-    // 3. 수량 변경 (Post /api/cart/{itemId})
     @PatchMapping("/{itemId}")
     public ApiResponse<String> updateQuantity(
             @PathVariable Long itemId,
@@ -46,10 +47,8 @@ public class CartController {
         return ApiResponse.success("수량이 변경되었습니다.");
     }
 
-    // 4. 일괄 삭제 (DELETE /api/cart)
     @DeleteMapping
     public ApiResponse<String> deleteCartItems(@RequestBody CartDeleteRequest request) {
-        // [요구사항] itemIds 배열을 한 번에 삭제
         cartService.deleteSelectedItems(request.itemIds());
         return ApiResponse.success("선택한 상품들을 삭제했습니다.");
     }

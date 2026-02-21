@@ -4,8 +4,12 @@ import gdgoc.be.common.ApiResponse;
 import gdgoc.be.dto.OrderRequest;
 import gdgoc.be.dto.OrderResponse;
 import gdgoc.be.service.OrderService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,28 +21,28 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    // 1. 주문 생성 (POST /api/orders)
+    @Operation(summary = "주문 생성", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping
     public ApiResponse<OrderResponse> createOrder(
-            @RequestHeader("X-USER-ID") Long userId,
+            @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody OrderRequest orderRequest) {
-        OrderResponse orderResponse = orderService.createOrder(userId, orderRequest);
+        OrderResponse orderResponse = orderService.createOrder(userDetails.getUsername(), orderRequest);
         return ApiResponse.success(orderResponse);
     }
 
-    // 2. 주문 목록 조회 (GET /api/orders)
+    @Operation(summary = "주문 목록 조회", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping
-    public ApiResponse<List<OrderResponse>> getOrders(@RequestHeader("X-USER-ID") Long userId) {
-        List<OrderResponse> orderResponses = orderService.getOrdersByUser(userId);
+    public ApiResponse<List<OrderResponse>> getOrders(@AuthenticationPrincipal UserDetails userDetails) {
+        List<OrderResponse> orderResponses = orderService.getOrdersByUser(userDetails.getUsername());
         return ApiResponse.success(orderResponses);
     }
 
     // 3. 주문 상세 조회 (GET /api/orders/{id})
     @GetMapping("/{id}")
     public ApiResponse<OrderResponse> getOrderDetails(
-            @RequestHeader("X-USER-ID") Long userId,
+            @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable("id") Long orderId) {
-        OrderResponse orderResponse = orderService.getOrderDetails(userId, orderId);
+        OrderResponse orderResponse = orderService.getOrderDetails(userDetails.getUsername(), orderId);
         return ApiResponse.success(orderResponse);
     }
 }

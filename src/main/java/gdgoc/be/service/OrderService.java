@@ -27,12 +27,12 @@ public class OrderService {
     private final CouponRepository couponRepository;
     private final UserCouponRepository userCouponRepository;
 
-    public OrderResponse createOrder(Long userId, OrderRequest request) {
+    public OrderResponse createOrder(String email, OrderRequest request) {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("USER_NOT_FOUND"));
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
 
-        UserCoupon userCoupon = findAndValidateCoupon(userId, request.couponId());
+        UserCoupon userCoupon = findAndValidateCoupon(email, request.couponId());
         Coupon coupon = (userCoupon != null) ? userCoupon.getCoupon() : null;
 
         List<OrderItem> orderItems = createOrderItems(request.orderItems());
@@ -50,11 +50,11 @@ public class OrderService {
 
     }
 
-    private UserCoupon findAndValidateCoupon(Long userId, Long couponId) {
+    private UserCoupon findAndValidateCoupon(String email, Long couponId) {
         if (couponId == null) return null;
 
-        UserCoupon userCoupon = userCouponRepository.findByIdAndUserId(couponId, userId)
-                .orElseThrow(() -> new RuntimeException("COUPON_NOT_FOUND"));
+        UserCoupon userCoupon = userCouponRepository.findByIdAndUserEmail(couponId,email)
+                .orElseThrow(() -> new BusinessException(BusinessErrorCode.COUPON_NOT_FOUND));
 
         userCoupon.validate();
 
@@ -73,11 +73,9 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public List<OrderResponse> getOrdersByUser(Long userId) {
+    public List<OrderResponse> getOrdersByUser(String email) {
 
-        validateUserExists(userId);
-
-        List<Order> orders = orderRepository.findByUser_Id(userId);
+        List<Order> orders = orderRepository.findByUserEmail(email);
 
         return orders.stream()
                 .map(OrderResponse::from)
@@ -85,12 +83,14 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public OrderResponse getOrderDetails(Long userId, Long orderId) {
-        validateUserExists(userId);
-
+    public OrderResponse getOrderDetails(String email, Long orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new BusinessException(BusinessErrorCode.ORDER_NOT_FOUND));
 
+        if (!order.getUser().getEmail().equals(email)) {
+            // 권한이 없는 주문에 접근할 경우 에러 처리
+            throw new BusinessException(BusinessErrorCode.FORBIDDEN);
+        }
         return OrderResponse.from(order);
     }
 
