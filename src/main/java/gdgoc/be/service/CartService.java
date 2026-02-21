@@ -4,6 +4,7 @@ package gdgoc.be.service;
 import gdgoc.be.Repository.CartItemRepository;
 import gdgoc.be.Repository.MenuRepository;
 import gdgoc.be.Repository.UserRepository;
+import gdgoc.be.common.util.SecurityUtil;
 import gdgoc.be.domain.CartItem;
 import gdgoc.be.domain.Menu;
 import gdgoc.be.domain.User;
@@ -27,8 +28,9 @@ public class CartService {
     private final MenuRepository menuRepository;
     private final UserRepository userRepository;
 
-    public void addMenuToCart(String email, long menuId, int quantity) {
+    public void addMenuToCart(long menuId, int quantity) {
 
+        String email = SecurityUtil.getCurrentUserEmail();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
         Menu menu = findMenuById(menuId);
@@ -67,7 +69,8 @@ public class CartService {
     }
 
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
-    public List<CartResponse> getCartItems(String email) {
+    public List<CartResponse> getCartItems() {
+        String email = SecurityUtil.getCurrentUserEmail();
         List<CartItem> items = cartItemRepository.findByUserEmail(email);
 
         return items.stream()

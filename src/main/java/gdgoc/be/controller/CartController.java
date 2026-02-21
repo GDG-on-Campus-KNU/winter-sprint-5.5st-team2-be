@@ -23,9 +23,9 @@ public class CartController {
 
     // 1. 장바구니 목록 조회 (GET/api/cart)
     @GetMapping
-    public ApiResponse<List<CartResponse>> getCart(@AuthenticationPrincipal UserDetails userDetails) {
+    public ApiResponse<List<CartResponse>> getCart() {
 
-        List<CartResponse> responses = cartService.getCartItems(userDetails.getUsername());
+        List<CartResponse> responses = cartService.getCartItems();
         return ApiResponse.success(responses);
     }
 
@@ -34,7 +34,7 @@ public class CartController {
     public ApiResponse<String> addToCart(
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody CartRequest request) {
-        cartService.addMenuToCart(userDetails.getUsername(), request.menuId(), request.quantity());
+        cartService.addMenuToCart(request.menuId(), request.quantity());
         return ApiResponse.success("장바구니에 상품을 담았습니다.");
     }
 
