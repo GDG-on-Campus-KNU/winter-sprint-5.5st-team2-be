@@ -1,11 +1,9 @@
 package gdgoc.be.service;
 
 import gdgoc.be.Repository.*;
+import gdgoc.be.common.util.SecurityUtil;
 import gdgoc.be.domain.*;
-import gdgoc.be.dto.CalculationResult;
-import gdgoc.be.dto.OrderItemRequest;
-import gdgoc.be.dto.OrderRequest;
-import gdgoc.be.dto.OrderResponse;
+import gdgoc.be.dto.*;
 import gdgoc.be.exception.BusinessErrorCode;
 import gdgoc.be.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
@@ -27,19 +25,21 @@ public class OrderService {
     private final CouponRepository couponRepository;
     private final UserCouponRepository userCouponRepository;
 
-    public OrderResponse createOrder(String email, OrderRequest request) {
+    public OrderResponse createOrder(OrderRequest request) {
 
+        String email = SecurityUtil.getCurrentUserEmail();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
 
-        UserCoupon userCoupon = findAndValidateCoupon(email, request.couponId());
+        UserCoupon userCoupon = findAndValidateCoupon(request.couponId());
         Coupon coupon = (userCoupon != null) ? userCoupon.getCoupon() : null;
 
         List<OrderItem> orderItems = createOrderItems(request.orderItems());
 
         CalculationResult result = OrderCalculator.calculateTotal(orderItems, coupon);
 
-        Order order = Order.createOrder(user, result, request.couponId(), "Default Address");
+        String deliveryAddress = (request.address() != null) ? request.address() : user.getAddress();
+        Order order = Order.createOrder(user, result, request.couponId(), deliveryAddress);
 
         orderItems.forEach(order::addOrderItem);
         if (userCoupon != null) {
@@ -50,9 +50,10 @@ public class OrderService {
 
     }
 
-    private UserCoupon findAndValidateCoupon(String email, Long couponId) {
+    private UserCoupon findAndValidateCoupon(Long couponId) {
         if (couponId == null) return null;
 
+        String email = SecurityUtil.getCurrentUserEmail();
         UserCoupon userCoupon = userCouponRepository.findByIdAndUserEmail(couponId,email)
                 .orElseThrow(() -> new BusinessException(BusinessErrorCode.COUPON_NOT_FOUND));
 
@@ -73,8 +74,9 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public List<OrderResponse> getOrdersByUser(String email) {
+    public List<OrderResponse> getOrdersByUser() {
 
+        String email = SecurityUtil.getCurrentUserEmail();
         List<Order> orders = orderRepository.findByUserEmail(email);
 
         return orders.stream()
@@ -83,10 +85,12 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public OrderResponse getOrderDetails(String email, Long orderId) {
+    public OrderResponse getOrderDetails(Long orderId) {
+
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new BusinessException(BusinessErrorCode.ORDER_NOT_FOUND));
 
+        String email = SecurityUtil.getCurrentUserEmail();
         if (!order.getUser().getEmail().equals(email)) {
             // 권한이 없는 주문에 접근할 경우 에러 처리
             throw new BusinessException(BusinessErrorCode.FORBIDDEN);
@@ -98,5 +102,12 @@ public class OrderService {
         if (!userRepository.existsById(userId)) {
             throw new BusinessException(BusinessErrorCode.USER_NOT_FOUND);
         }
+    }
+
+    public List<UserCouponResponse> getMyCoupons() {
+        String email = SecurityUtil.getCurrentUserEmail();
+        return userCouponRepository.findByUserEmail(email).stream()
+                .map(UserCouponResponse::from)
+                .collect(Collectors.toList());
     }
 }
