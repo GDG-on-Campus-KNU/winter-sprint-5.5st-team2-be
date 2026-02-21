@@ -14,7 +14,7 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
-    @Value("${jwt.secret:very-long-and-secure-secret-key-for-gdgoc-project-2026}")
+    @Value("${jwt.secret}")
     private String secretKey;
 
     @Value("${jwt.expiration:1800000}") // 30분

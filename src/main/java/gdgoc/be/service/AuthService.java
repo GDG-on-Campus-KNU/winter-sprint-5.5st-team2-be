@@ -42,10 +42,10 @@ public class AuthService {
 
     public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new BusinessException(BusinessErrorCode.INVALID_LOGIN_ATTEMPT));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new BusinessException(BusinessErrorCode.INVALID_PASSWORD);
+            throw new BusinessException(BusinessErrorCode.INVALID_LOGIN_ATTEMPT);
         }
 
         String token = jwtTokenProvider.createToken(user.getEmail());
