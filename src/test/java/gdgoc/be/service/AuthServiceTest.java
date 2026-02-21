@@ -74,7 +74,7 @@ class AuthServiceTest {
         // when & then
         assertThatThrownBy(() -> authService.login(request))
                 .isInstanceOf(BusinessException.class)
-                .hasFieldOrPropertyWithValue("errorCode", BusinessErrorCode.USER_NOT_FOUND);
+                .hasFieldOrPropertyWithValue("errorCode", BusinessErrorCode.INVALID_LOGIN_ATTEMPT);
     }
 
     @Test
@@ -95,6 +95,6 @@ class AuthServiceTest {
         // when & then
         assertThatThrownBy(() -> authService.login(request))
                 .isInstanceOf(BusinessException.class)
-                .hasFieldOrPropertyWithValue("errorCode", BusinessErrorCode.INVALID_PASSWORD);
+                .hasFieldOrPropertyWithValue("errorCode", BusinessErrorCode.INVALID_LOGIN_ATTEMPT);
     }
 }
