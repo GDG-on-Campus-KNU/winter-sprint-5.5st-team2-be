@@ -24,7 +24,7 @@ public class UserController {
     @Operation(summary = "내 정보 조회", description = "JWT 토큰을 통해 현재 로그인한 사용자의 정보를 조회합니다.", 
                security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/me")
-    public ApiResponse<UserResponse> getMe(@AuthenticationPrincipal UserDetails userDetails) {
+        public ApiResponse<UserResponse> getMe(@AuthenticationPrincipal UserDetails userDetails) {
         UserResponse response = authService.getMe(userDetails.getUsername());
         return ApiResponse.success(response);
     }
