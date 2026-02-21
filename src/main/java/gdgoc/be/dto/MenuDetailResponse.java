@@ -19,7 +19,7 @@ public record MenuDetailResponse(
 
         return MenuDetailResponse.builder()
                 .id(menu.getId())
-                .name(builder().name)
+                .name(menu.getName())
                 .price(menu.getPrice())
                 .description(menu.getDescription())
                 .category(menu.getCategory().name())
