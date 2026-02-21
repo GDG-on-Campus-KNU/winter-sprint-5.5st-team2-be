@@ -60,3 +60,6 @@ target/
 *.temp
 *.swp
 
+# Application secrets
+src/main/resources/application.properties
+
