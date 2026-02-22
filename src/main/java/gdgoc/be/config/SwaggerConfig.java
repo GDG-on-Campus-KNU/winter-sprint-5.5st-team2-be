@@ -15,8 +15,8 @@ public class SwaggerConfig {
         String securitySchemeName = "bearerAuth";
         return new OpenAPI()
                 .info(new Info()
-                        .title("주식 알림 API")
-                        .description("성준의 주식 알림 앱 프로젝트 API 문서")
+                        .title("GDGOC API") // 수정: 프로젝트 테마 반영
+                        .description("GDGOC Winter Sprint 팀 프로젝트 API 문서") // 수정
                         .version("v1.0.0"))
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new Components()
