@@ -19,9 +19,12 @@ public class SignupRequest {
     @NotBlank(message = "이름은 필수입니다.")
     private String name;
 
-    public SignupRequest(String email, String password, String name) {
+    String address;
+
+    public SignupRequest(String email, String password, String name, String address) {
         this.email = email;
         this.password = password;
         this.name = name;
+        this.address = address;
     }
 }
