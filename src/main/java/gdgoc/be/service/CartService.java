@@ -46,6 +46,11 @@ public class CartService {
 
         CartItem cartItem = findCartItemById(itemId);
 
+        String email = SecurityUtil.getCurrentUserEmail();
+        if (!cartItem.getUser().getEmail().equals(email)) {
+            throw new BusinessException(BusinessErrorCode.FORBIDDEN);
+        }
+
         if(quantity <= 0 ) {
             cartItemRepository.delete(cartItem);
             return;
@@ -65,6 +70,14 @@ public class CartService {
     }
 
     public void deleteSelectedItems(List<Long> itemIds) {
+
+        String email = SecurityUtil.getCurrentUserEmail();
+        for(Long id : itemIds) {
+            CartItem item = findCartItemById(id);
+            if(!item.getUser().getEmail().equals((email))) {
+                throw new BusinessException(BusinessErrorCode.FORBIDDEN);
+            }
+        }
         cartItemRepository.deleteAllById(itemIds);
     }
 
