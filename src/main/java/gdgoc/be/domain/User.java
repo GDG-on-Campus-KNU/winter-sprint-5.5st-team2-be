@@ -60,5 +60,15 @@ public class User {
             this.address = address;
             this.detailAddress = detailAddress;
         }
+
+    public static User createUser(String email, String password, String name, String address) {
+        return User.builder()
+                .email(email)
+                .password(password)
+                .name(name)
+                .address(address)
+                .role(Role.USER)
+                .build();
+    }
     }
     
