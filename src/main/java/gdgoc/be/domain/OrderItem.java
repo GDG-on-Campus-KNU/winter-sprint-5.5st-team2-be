@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "order_item")
 public class OrderItem {
@@ -21,32 +20,34 @@ public class OrderItem {
     private Order order;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "menu_id", nullable = false)
-    private Menu menu;
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 
     @Column(nullable = false)
     private int quantity;
 
-    @Column(name = "order_price", nullable = false, precision = 19, scale = 2)
+    @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal orderPrice;
 
     @Builder
-    private OrderItem(Menu menu, int quantity, BigDecimal orderPrice) {
-        this.menu = menu;
-        this.quantity =quantity;
+    private OrderItem(Product product, int quantity, BigDecimal orderPrice) {
+        this.product = product;
+        this.quantity = quantity;
         this.orderPrice = orderPrice;
     }
 
-    public static OrderItem createOrderItem(Menu menu, int quantity) {
+    public void setOrder(Order order) {
+        this.order = order;
+    }
 
-        BigDecimal calculatedPrice = BigDecimal.valueOf(menu.getPrice())
+    public static OrderItem createOrderItem(Product product, int quantity) {
+        BigDecimal calculatedPrice = BigDecimal.valueOf(product.getPrice())
                 .multiply(BigDecimal.valueOf(quantity));
 
         return OrderItem.builder()
-                .menu(menu)
+                .product(product)
                 .quantity(quantity)
                 .orderPrice(calculatedPrice)
                 .build();
     }
-
 }

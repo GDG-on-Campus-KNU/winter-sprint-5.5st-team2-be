@@ -1,27 +1,20 @@
--- 기존 테이블 삭제 (연관 관계 고려하여 순서대로 삭제)
-DROP TABLE IF EXISTS user_coupon CASCADE;
-DROP TABLE IF EXISTS coupon CASCADE;
-DROP TABLE IF EXISTS order_item CASCADE;
-DROP TABLE IF EXISTS orders CASCADE;
-DROP TABLE IF EXISTS cart_item CASCADE;
-DROP TABLE IF EXISTS menu CASCADE;
-DROP TABLE IF EXISTS store CASCADE;
+-- 1. 사용자 (Users)
 DROP TABLE IF EXISTS users CASCADE;
-
--- 1. 사용자 (Users) - 비밀번호, 권한, 주소 필드 포함
 CREATE TABLE users (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    role VARCHAR(20) NOT NULL, -- USER, ADMIN
+    phone VARCHAR(20),
+    role VARCHAR(20) NOT NULL,
     zip_code VARCHAR(10),
     address VARCHAR(255),
     detail_address VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 2. 매장 (Store)
+-- 2. 상점 (Store)
+DROP TABLE IF EXISTS store CASCADE;
 CREATE TABLE store (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -29,69 +22,101 @@ CREATE TABLE store (
     phone VARCHAR(50)
 );
 
--- 3. 메뉴 (Menu)
-CREATE TABLE menu (
+-- 3. 상품 (Product)
+DROP TABLE IF EXISTS products CASCADE;
+CREATE TABLE products (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     store_id BIGINT NOT NULL,
+    brand VARCHAR(100) NOT NULL,
     name VARCHAR(255) NOT NULL,
-    description TEXT,
+    image_url VARCHAR(255) NOT NULL,
+    original_price INT NOT NULL,
+    discount_rate INT NOT NULL,
     price INT NOT NULL,
-    stock INT NOT NULL DEFAULT 0,
+    stock INT NOT NULL,
     is_available BOOLEAN DEFAULT TRUE,
-    category VARCHAR(50) NOT NULL, -- PIZZA, BURGER 등
-    CONSTRAINT chk_menu_stock CHECK (stock >= 0),
-    FOREIGN KEY (store_id) REFERENCES store(id)
+    description TEXT,
+    rating DOUBLE DEFAULT 0.0,
+    category VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (store_id) REFERENCES store(id),
+    CONSTRAINT chk_product_stock CHECK (stock >= 0)
+);
+
+-- 상품 옵션/이미지 컬렉션 테이블
+DROP TABLE IF EXISTS product_sizes CASCADE;
+CREATE TABLE product_sizes (
+    product_id BIGINT NOT NULL,
+    size_option VARCHAR(50) NOT NULL,
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+DROP TABLE IF EXISTS product_detail_images CASCADE;
+CREATE TABLE product_detail_images (
+    product_id BIGINT NOT NULL,
+    image_url VARCHAR(255) NOT NULL,
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+DROP TABLE IF EXISTS product_gallery_images CASCADE;
+CREATE TABLE product_gallery_images (
+    product_id BIGINT NOT NULL,
+    image_url VARCHAR(255) NOT NULL,
+    FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
 -- 4. 장바구니 (CartItem)
+DROP TABLE IF EXISTS cart_item CASCADE;
 CREATE TABLE cart_item (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
-    menu_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL,
     quantity INT NOT NULL,
-    UNIQUE (user_id, menu_id), -- 중복 담기 방지
-    CONSTRAINT chk_cart_quantity CHECK (quantity > 0),
     FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (menu_id) REFERENCES menu(id)
+    FOREIGN KEY (product_id) REFERENCES products(id),
+    UNIQUE (user_id, product_id)
 );
 
--- 5. 주문 (Orders)
+-- 5. 쿠폰 (Coupon)
+DROP TABLE IF EXISTS coupon CASCADE;
+CREATE TABLE coupon (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(50) NOT NULL UNIQUE,
+    name VARCHAR(100) NOT NULL,
+    discount_amount INT NOT NULL,
+    min_order_amount INT NOT NULL,
+    expire_date DATE NOT NULL
+);
+
+-- 6. 주문 (Order)
+DROP TABLE IF EXISTS orders CASCADE;
 CREATE TABLE orders (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
-    total_amount DECIMAL(19, 2) NOT NULL,
-    discount_amount DECIMAL(19, 2) DEFAULT 0,
-    delivery_fee DECIMAL(19, 2) DEFAULT 0,
-    final_amount DECIMAL(19, 2) NOT NULL,
-    status VARCHAR(50) NOT NULL, -- PENDING, COMPLETED, CANCELLED
-    address VARCHAR(255),
     coupon_id BIGINT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    total_amount DECIMAL(19, 2) NOT NULL,
+    discount_amount DECIMAL(19, 2) NOT NULL,
+    final_amount DECIMAL(19, 2) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (coupon_id) REFERENCES coupon(id)
 );
 
--- 6. 주문 상세 (OrderItem)
+-- 7. 주문 상세 (OrderItem)
+DROP TABLE IF EXISTS order_item CASCADE;
 CREATE TABLE order_item (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     order_id BIGINT NOT NULL,
-    menu_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL,
     quantity INT NOT NULL,
     order_price DECIMAL(19, 2) NOT NULL,
     FOREIGN KEY (order_id) REFERENCES orders(id),
-    FOREIGN KEY (menu_id) REFERENCES menu(id)
+    FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
--- 7. 쿠폰 (Coupon)
-CREATE TABLE coupon (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    discount_type VARCHAR(20) NOT NULL, -- PERCENT, FIXED
-    discount_value DECIMAL(19, 2) NOT NULL,
-    min_order_amount DECIMAL(19, 2) DEFAULT 0,
-    expiry_date TIMESTAMP
-);
-
--- 8. 사용자 쿠폰 (UserCoupon)
+-- 8. 유저 쿠폰 매핑 (UserCoupon)
+DROP TABLE IF EXISTS user_coupon CASCADE;
 CREATE TABLE user_coupon (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
