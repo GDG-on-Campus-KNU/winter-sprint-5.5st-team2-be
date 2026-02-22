@@ -30,12 +30,12 @@ public class AuthService {
             throw new BusinessException(BusinessErrorCode.EMAIL_ALREADY_EXISTS);
         }
 
-        User user = User.builder()
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .name(request.getName())
-                .role(Role.USER)
-                .build();
+        User user = User.createUser(
+                request.getEmail(),
+                passwordEncoder.encode(request.getPassword()),
+                request.getName(),
+                request.getAddress()
+        );
 
         userRepository.save(user);
     }

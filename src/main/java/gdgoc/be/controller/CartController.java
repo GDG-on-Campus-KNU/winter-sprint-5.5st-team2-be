@@ -32,7 +32,6 @@ public class CartController {
     // 2. 장바구니 담기 (POST /api/cart)
     @PostMapping
     public ApiResponse<String> addToCart(
-            @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody CartRequest request) {
         cartService.addMenuToCart(request.menuId(), request.quantity());
         return ApiResponse.success("장바구니에 상품을 담았습니다.");

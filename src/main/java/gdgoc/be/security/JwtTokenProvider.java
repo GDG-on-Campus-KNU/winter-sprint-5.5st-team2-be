@@ -2,6 +2,7 @@ package gdgoc.be.security;
 
 import gdgoc.be.domain.Role;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -66,6 +67,8 @@ public class JwtTokenProvider {
         try {
             Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
             return true;
+        } catch (ExpiredJwtException e) {
+            return false;
         } catch (Exception e) {
             return false;
         }
