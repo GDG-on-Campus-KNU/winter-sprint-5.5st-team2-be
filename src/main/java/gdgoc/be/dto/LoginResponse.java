@@ -1,10 +1,19 @@
 package gdgoc.be.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Builder;
 
-@Getter
-@AllArgsConstructor
-public class LoginResponse {
-    private String accessToken;
+@Builder
+public record LoginResponse(
+    String accessToken,
+    String refreshToken,
+    UserInfo user
+) {
+    @Builder
+    public record UserInfo(
+        Long id,
+        String role,
+        String name,
+        String email
+    ) {
+    }
 }

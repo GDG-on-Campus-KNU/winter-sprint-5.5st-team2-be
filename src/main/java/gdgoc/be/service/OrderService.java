@@ -3,9 +3,7 @@ package gdgoc.be.service;
 import gdgoc.be.Repository.*;
 import gdgoc.be.common.util.SecurityUtil;
 import gdgoc.be.domain.*;
-import gdgoc.be.dto.OrderItemRequest;
-import gdgoc.be.dto.OrderRequest;
-import gdgoc.be.dto.OrderResponse;
+import gdgoc.be.dto.*;
 import gdgoc.be.exception.BusinessErrorCode;
 import gdgoc.be.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +22,7 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final CouponRepository couponRepository;
+    private final UserCouponRepository userCouponRepository;
     private final OrderCalculator orderCalculator;
     private final CartItemRepository cartItemRepository;
 
@@ -42,12 +41,13 @@ public class OrderService {
 
         Order order = Order.createOrder(
                 user,
-                orderItems,
-                calculation.totalAmount(),
-                calculation.discountAmount(),
-                calculation.finalAmount(),
-                calculation.coupon()
+                calculation,
+                request.couponId(),
+                request.address()
         );
+
+        // OrderItem들을 Order에 연결
+        orderItems.forEach(order::addOrderItem);
 
         Order savedOrder = orderRepository.save(order);
 
@@ -82,8 +82,29 @@ public class OrderService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
 
-        return orderRepository.findByUserIdOrderByOrderDateDesc(user.getId()).stream()
+        return orderRepository.findByUser_IdOrderByOrderDateDesc(user.getId()).stream()
                 .map(OrderResponse::from)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public OrderResponse getOrderDetails(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new BusinessException(BusinessErrorCode.ORDER_NOT_FOUND));
+
+        String email = SecurityUtil.getCurrentUserEmail();
+        if (!order.getUser().getEmail().equals(email)) {
+            throw new BusinessException(BusinessErrorCode.FORBIDDEN);
+        }
+
+        return OrderResponse.from(order);
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserCouponResponse> getMyCoupons() {
+        String email = SecurityUtil.getCurrentUserEmail();
+        return userCouponRepository.findByUserEmail(email).stream()
+                .map(UserCouponResponse::from)
                 .collect(Collectors.toList());
     }
 }
