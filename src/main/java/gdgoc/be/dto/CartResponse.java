@@ -1,25 +1,20 @@
 package gdgoc.be.dto;
 
 
-import gdgoc.be.domain.CartItem;
-import lombok.Builder;
+import java.util.List;
 
-@Builder
 public record CartResponse(
-        Long itemId,
-        String menuName,
-        int price,
-        int quantity,
-        boolean isAvailable
+        List<CartItemResponse> items,
+        int subtotal,
+        int shippingFee,
+        int total
 ) {
-
-    public static CartResponse from(CartItem item) {
-        return CartResponse.builder()
-                .itemId(item.getId())
-                .menuName(item.getMenu().getName())
-                .price(item.getMenu().getPrice())
-                .quantity(item.getQuantity())
-                .isAvailable(item.getMenu().getStock() >0)
-                .build();
+    public static CartResponse of(List<CartItemResponse> items, int subtotal, int shippingFee) {
+        return new CartResponse(
+                items,
+                subtotal,
+                shippingFee,
+                subtotal + shippingFee
+        );
     }
 }
