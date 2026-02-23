@@ -14,10 +14,12 @@ import gdgoc.be.exception.BusinessException;
 import gdgoc.be.Repository.UserRepository;
 import gdgoc.be.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -70,6 +72,8 @@ public class AuthService {
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new BusinessException(BusinessErrorCode.INVALID_LOGIN_ATTEMPT));
 
+        log.info(user.getEmail());
+        log.info(user.getPassword());
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
             throw new BusinessException(BusinessErrorCode.INVALID_LOGIN_ATTEMPT);
         }

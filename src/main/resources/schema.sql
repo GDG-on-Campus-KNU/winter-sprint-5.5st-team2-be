@@ -72,9 +72,10 @@ CREATE TABLE cart_item (
     user_id BIGINT NOT NULL,
     product_id BIGINT NOT NULL,
     quantity INT NOT NULL,
+    selected_size VARCHAR(50) NOT NULL, -- 이 줄을 추가하세요!
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (product_id) REFERENCES products(id),
-    UNIQUE (user_id, product_id)
+    UNIQUE (user_id, product_id, selected_size) -- 복합 유니크 제약도 수정 (사이즈별 중복 방지)
 );
 
 -- 5. 쿠폰 (Coupon)

@@ -22,6 +22,13 @@ public class CartController {
 
     private final CartService cartService;
 
+    @Operation(summary = "내 장바구니 조회", description = "현재 사용자의 장바구니 목록을 조회합니다.",
+            security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping
+    public ApiResponse<CartSummaryResponse> getMyCart() {
+        return ApiResponse.success(cartService.getMyCart());
+    }
+
     @Operation(summary = "장바구니 담기", description = "상품을 장바구니에 추가합니다.", 
                security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping
@@ -30,18 +37,6 @@ public class CartController {
         return ApiResponse.success(null);
     }
 
-    @PatchMapping("/{cartItemId}")
-    public ApiResponse<Void> updateCart(@PathVariable Long cartItemId, @RequestParam int quantity) {
-        cartService.updateCartItemQuantity(cartItemId, quantity);
-        return ApiResponse.success(null);
-    }
-
-    @Operation(summary = "내 장바구니 조회", description = "현재 사용자의 장바구니 목록을 조회합니다.", 
-               security = @SecurityRequirement(name = "bearerAuth"))
-    @GetMapping
-    public ApiResponse<CartSummaryResponse> getMyCart() {
-        return ApiResponse.success(cartService.getMyCart());
-    }
 
     @Operation(summary = "장바구니 항목 삭제", description = "장바구니에서 특정 상품을 제거합니다.", 
                security = @SecurityRequirement(name = "bearerAuth"))
