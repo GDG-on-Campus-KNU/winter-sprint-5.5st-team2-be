@@ -29,11 +29,14 @@ public class CartItem {
     @Column(nullable = false)
     private int quantity;
 
+    private String selectedSize;
+
     @Builder
-    public CartItem(User user, Menu menu, int quantity) {
+    public CartItem(User user, Menu menu, int quantity, String selectedSize) {
         this.user = user;
         this.menu = menu;
         this.quantity = quantity;
+        this.selectedSize = selectedSize;
     }
 
 
