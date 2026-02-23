@@ -30,7 +30,7 @@ public class CartService {
     private static final int FREE_SHIPPING_THRESHOLD = 30000;
     private static final int DEFAULT_SHIPPING_FEE = 3000;
 
-    public void addMenuToCart(long menuId, int quantity) {
+    public void addMenuToCart(long menuId, int quantity, String selectedSize) {
 
         String email = SecurityUtil.getCurrentUserEmail();
 
@@ -42,7 +42,7 @@ public class CartService {
                         .orElseGet(() -> CartItem.createEmptyCartItem(user, menu));
 
         cartItem.addQuantityWithStockCheck(quantity);
-        cartItem.updateItem(cartItem.getQuantity(), cartItem.getSelectedSize());
+        cartItem.updateItem(cartItem.getQuantity(), selectedSize);
         cartItemRepository.save(cartItem);
     }
 
@@ -82,6 +82,12 @@ public class CartService {
             validateOwnership(item);
         }
         cartItemRepository.deleteAllById(itemIds);
+    }
+
+    public void deleteAllItems() {
+        String email = SecurityUtil.getCurrentUserEmail();
+        List<CartItem> items = cartItemRepository.findByUserEmail(email);
+        cartItemRepository.deleteAll(items);
     }
 
     public void validateOwnership(CartItem item) {
