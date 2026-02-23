@@ -3,6 +3,7 @@ package gdgoc.be.domain;
 
 import gdgoc.be.exception.BusinessErrorCode;
 import gdgoc.be.exception.BusinessException;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.*;
@@ -17,12 +18,22 @@ public class Menu {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Nullable
+    private String brand;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id", nullable = false)
     private Store store;
 
     @Column(nullable = false, length = 255)
     private String name;
+
+    @Nullable
+    private String imageUrl;
+
+    @Column(nullable = false)
+    private int originalPrice;
+
 
     @Column(columnDefinition = "TEXT")
     private String description;
