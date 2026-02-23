@@ -59,12 +59,13 @@ public class CartItem {
                 .build();
     }
 
-    public static CartItem createEmptyCartItem(User user, Menu menu) {
+    public static CartItem createEmptyCartItem(User user, Menu menu, String selectedSize) {
 
         return CartItem.builder()
                 .user(user)
                 .menu(menu)
                 .quantity(0)
+                .selectedSize(selectedSize)
                 .build();
     }
 

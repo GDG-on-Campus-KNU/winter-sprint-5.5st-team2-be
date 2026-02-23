@@ -55,6 +55,7 @@ public class Menu {
     @Column(nullable = false)
     private Category category;
 
+    @ElementCollection
     @Column(name = "size_option")
     private List<String> sizeOptions = new ArrayList<>();
 

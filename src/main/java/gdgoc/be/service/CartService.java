@@ -18,6 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static gdgoc.be.common.CartConstants.DEFAULT_SHIPPING_FEE;
+import static gdgoc.be.common.CartConstants.FREE_SHIPPING_THRESHOLD;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -27,22 +30,19 @@ public class CartService {
     private final MenuRepository menuRepository;
     private final UserRepository userRepository;
 
-    private static final int FREE_SHIPPING_THRESHOLD = 30000;
-    private static final int DEFAULT_SHIPPING_FEE = 3000;
+
 
     public void addMenuToCart(long menuId, int quantity, String selectedSize) {
 
         String email = SecurityUtil.getCurrentUserEmail();
-
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
         Menu menu = findMenuById(menuId);
 
-        CartItem cartItem = cartItemRepository.findByUserEmailAndMenuId(email,menuId)
-                        .orElseGet(() -> CartItem.createEmptyCartItem(user, menu));
+        CartItem cartItem = cartItemRepository.findByUserEmailAndMenuIdAndSelectedSize(email,menuId,selectedSize)
+                        .orElseGet(() -> CartItem.createEmptyCartItem(user, menu, selectedSize));
 
         cartItem.addQuantityWithStockCheck(quantity);
-        cartItem.updateItem(cartItem.getQuantity(), selectedSize);
         cartItemRepository.save(cartItem);
     }
 
