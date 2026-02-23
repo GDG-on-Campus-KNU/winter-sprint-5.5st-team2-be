@@ -9,7 +9,7 @@ import lombok.*;
 @Table(
         name = "cart_item",
         uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"user_id", "product_id"})
+        @UniqueConstraint(columnNames = {"user_id", "product_id", "selected_size"})
 }
 )
 public class CartItem {

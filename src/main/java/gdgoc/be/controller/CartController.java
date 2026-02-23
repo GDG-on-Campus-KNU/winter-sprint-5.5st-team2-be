@@ -11,6 +11,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Tag(name = "Cart", description = "장바구니 관련 API")
 @RestController
 @RequestMapping("/api/cart")
@@ -45,6 +47,14 @@ public class CartController {
     @DeleteMapping("/{cartItemId}")
     public ApiResponse<Void> deleteCart(@PathVariable Long cartItemId) {
         cartService.deleteCartItem(cartItemId);
+        return ApiResponse.success(null);
+    }
+
+    @Operation(summary = "장바구니 선택/전체 삭제", description = "ID 리스트를 보내면 선택 삭제, 보내지 않으면 전체 삭제를 수행합니다.",
+            security = @SecurityRequirement(name = "bearerAuth"))
+    @DeleteMapping
+    public ApiResponse<Void> deleteCartItems(@RequestBody(required = false) List<Long> cartItemIds) {
+        cartService.deleteCartItems(cartItemIds);
         return ApiResponse.success(null);
     }
 }

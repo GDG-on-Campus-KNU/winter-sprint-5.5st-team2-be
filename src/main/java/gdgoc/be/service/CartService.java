@@ -35,8 +35,8 @@ public class CartService {
         Product product = findProductById(request.productId());
 
         CartItem cartItem = cartItemRepository.findByUserEmailAndProductIdAndSelectedSize(
-                        email, request.productId(), request.selected_size())
-                .orElseGet(() -> CartItem.createEmptyCartItem(user,product,request.selected_size()));
+                        email, request.productId(), request.selectedSize())
+                .orElseGet(() -> CartItem.createEmptyCartItem(user,product,request.selectedSize()));
 
         cartItem.addQuantity(request.quantity());
         cartItem.validateStock(cartItem.getQuantity());
@@ -57,7 +57,7 @@ public class CartService {
         int shippingFee = (subTotal >= 30000 || subTotal == 0) ? 0 : 3000;
         int total = subTotal + shippingFee;
 
-        return new CartSummaryResponse(items,shippingFee,shippingFee,total);
+        return new CartSummaryResponse(items,subTotal,shippingFee,total);
     }
 
     public void deleteCartItem(Long cartId) {
@@ -91,5 +91,24 @@ public class CartService {
     private Product findProductById(Long productId) {
         return productRepository.findById(productId)
                 .orElseThrow(() -> new BusinessException(BusinessErrorCode.PRODUCT_NOT_FOUND));
+    }
+
+    public void deleteCartItems(List<Long> cartItemIds) {
+
+        String email = SecurityUtil.getCurrentUserEmail();
+
+        if (cartItemIds == null || cartItemIds.isEmpty()) {
+            List<CartItem> userItems = cartItemRepository.findByUserEmail(email);
+            cartItemRepository.deleteAllInBatch(userItems);
+            return;
+        }
+        List<CartItem> targetItems = cartItemRepository.findAllById(cartItemIds);
+
+        for (CartItem item : targetItems) {
+            if (!item.getUser().getEmail().equals(email)) {
+                throw new BusinessException(BusinessErrorCode.UNAUTHORIZED_CART_ACCESS);
+            }
+        }
+        cartItemRepository.deleteAllInBatch(targetItems);
     }
 }

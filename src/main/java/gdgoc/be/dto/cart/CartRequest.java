@@ -12,6 +12,6 @@ public record CartRequest(
         int quantity,
 
         @NotBlank(message = "사이즈 선택은 필수입니다.")
-        String selected_size
+        String selectedSize
 ) {
 }
