@@ -42,6 +42,7 @@ public class CartService {
                         .orElseGet(() -> CartItem.createEmptyCartItem(user, menu));
 
         cartItem.addQuantityWithStockCheck(quantity);
+        cartItem.updateItem(cartItem.getQuantity(), cartItem.getSelectedSize());
         cartItemRepository.save(cartItem);
     }
 

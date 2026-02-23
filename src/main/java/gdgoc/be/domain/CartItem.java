@@ -29,6 +29,7 @@ public class CartItem {
     @Column(nullable = false)
     private int quantity;
 
+    @Column(name = "selected_size")
     private String selectedSize;
 
     @Builder

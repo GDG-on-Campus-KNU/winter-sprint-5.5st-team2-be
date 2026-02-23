@@ -43,7 +43,7 @@ public class CartController {
     }
 
     @DeleteMapping
-    public ApiResponse<String> delectSelected(@RequestBody CartDeleteRequest request) {
+    public ApiResponse<String> delectItems(@RequestBody CartDeleteRequest request) {
         cartService.deleteSelectedItems(request.itemIds());
         return ApiResponse.success("선택한 아이템이 삭제되었습니다.");
     }
