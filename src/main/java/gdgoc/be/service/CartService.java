@@ -10,6 +10,7 @@ import gdgoc.be.domain.User;
 import gdgoc.be.dto.cart.CartRequest;
 import gdgoc.be.dto.cart.CartResponse;
 import gdgoc.be.dto.cart.CartSummaryResponse;
+import gdgoc.be.dto.cart.CartUpdateRequest;
 import gdgoc.be.exception.BusinessErrorCode;
 import gdgoc.be.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +35,10 @@ public class CartService {
                 .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
 
         Product product = findProductById(request.productId());
+
+        if (!product.getSizesOptions().contains(request.selectedSize())) {
+            throw new BusinessException(BusinessErrorCode.INVALID_CART);
+        }
 
         CartItem cartItem = cartItemRepository.findByUserEmailAndProductIdAndSelectedSize(
                         email, request.productId(), request.selectedSize())
@@ -72,7 +78,7 @@ public class CartService {
         cartItemRepository.delete(cartItem);
     }
 
-    public void updateCartItemQuantity(Long cartItemId, int quantity) {
+    public void updateCartItem(Long cartItemId, CartUpdateRequest request) {
 
         String email = SecurityUtil.getCurrentUserEmail();
 
@@ -83,9 +89,12 @@ public class CartService {
             throw new BusinessException(BusinessErrorCode.UNAUTHORIZED_CART_ACCESS);
         }
 
-        cartItem.validateStock(quantity);
+        /**
+         * Size 업데이트 및 검증 기능 필요
+         */
 
-        cartItem.updateQuantity(quantity);
+        cartItem.validateStock(request.quantity());
+        cartItem.updateQuantity(request.quantity());
     }
 
     private Product findProductById(Long productId) {

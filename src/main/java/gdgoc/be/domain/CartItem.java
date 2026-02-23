@@ -70,4 +70,8 @@ public class CartItem {
             throw new IllegalArgumentException("재고가 부족합니다.");
         }
     }
+
+    public void updateSelectedSize(String selectedSize) {
+        this.selectedSize = selectedSize;
+    }
 }
