@@ -44,8 +44,10 @@ public class CartItem {
         this.quantity += amount;
     }
 
-    public void updateQuantity(int quantity) {
+    public void updateItem(int quantity, String selectedSize) {
+        validateStock(quantity);
         this.quantity = quantity;
+        this.selectedSize = selectedSize;
     }
 
     public static CartItem createCartItem(User user, Menu menu, int quantity) {

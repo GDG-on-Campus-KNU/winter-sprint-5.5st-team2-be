@@ -8,6 +8,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor
@@ -51,6 +54,9 @@ public class Menu {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Category category;
+
+    @Column(name = "size_option")
+    private List<String> sizeOptions = new ArrayList<>();
 
     public Menu(Long id, Store store, String name, String description, int price, Integer stock, boolean isAvailable, Category category) {
         this.id = id;
