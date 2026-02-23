@@ -1,8 +1,8 @@
 package gdgoc.be.controller;
 
 import gdgoc.be.common.ApiResponse;
-import gdgoc.be.dto.OrderResponse;
-import gdgoc.be.dto.UserCouponResponse;
+import gdgoc.be.dto.order.OrderResponse;
+import gdgoc.be.dto.user.UserCouponResponse;
 import gdgoc.be.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

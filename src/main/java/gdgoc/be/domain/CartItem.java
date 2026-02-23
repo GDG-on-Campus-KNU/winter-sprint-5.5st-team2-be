@@ -29,11 +29,15 @@ public class CartItem {
     @Column(nullable = false)
     private int quantity;
 
+    @Column(name = "selected_size", nullable = false)
+    private String selectedSize;
+
     @Builder
-    public CartItem(User user, Product product, int quantity) {
+    public CartItem(User user, Product product, int quantity, String selectedSize) {
         this.user = user;
         this.product = product;
         this.quantity = quantity;
+        this.selectedSize = selectedSize;
     }
 
     public void updateQuantity(int quantity) {
@@ -52,11 +56,12 @@ public class CartItem {
                 .build();
     }
 
-    public static CartItem createEmptyCartItem(User user, Product product) {
+    public static CartItem createEmptyCartItem(User user, Product product, String selectedSize) {
         return CartItem.builder()
                 .user(user)
                 .product(product)
                 .quantity(0)
+                .selectedSize(selectedSize)
                 .build();
     }
 

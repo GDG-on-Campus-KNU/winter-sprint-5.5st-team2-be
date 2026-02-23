@@ -1,4 +1,4 @@
-package gdgoc.be.dto;
+package gdgoc.be.dto.user;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

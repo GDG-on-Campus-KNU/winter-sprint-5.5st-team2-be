@@ -7,9 +7,9 @@ import gdgoc.be.common.util.SecurityUtil;
 import gdgoc.be.domain.CartItem;
 import gdgoc.be.domain.Product;
 import gdgoc.be.domain.User;
-import gdgoc.be.dto.CartDeleteRequest;
-import gdgoc.be.dto.CartRequest;
-import gdgoc.be.dto.CartResponse;
+import gdgoc.be.dto.cart.CartRequest;
+import gdgoc.be.dto.cart.CartResponse;
+import gdgoc.be.dto.cart.CartSummaryResponse;
 import gdgoc.be.exception.BusinessErrorCode;
 import gdgoc.be.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,33 +27,42 @@ public class CartService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
 
-    public void addProductToCart(long productId, int quantity) {
+    public void addProductToCart(CartRequest request) {
         String email = SecurityUtil.getCurrentUserEmail();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
 
-        Product product = findProductById(productId);
+        Product product = findProductById(request.productId());
 
-        CartItem cartItem = cartItemRepository.findByUserEmailAndProductId(email, productId)
-                        .orElseGet(() -> CartItem.createEmptyCartItem(user, product));
+        CartItem cartItem = cartItemRepository.findByUserEmailAndProductIdAndSelectedSize(
+                        email, request.productId(), request.selected_size())
+                .orElseGet(() -> CartItem.createEmptyCartItem(user,product,request.selected_size()));
 
-        cartItem.addQuantity(quantity);
+        cartItem.addQuantity(request.quantity());
         cartItem.validateStock(cartItem.getQuantity());
 
         cartItemRepository.save(cartItem);
     }
 
     @Transactional(readOnly = true)
-    public List<CartResponse> getMyCart() {
+    public CartSummaryResponse getMyCart() {
         String email = SecurityUtil.getCurrentUserEmail();
-        return cartItemRepository.findByUserEmail(email).stream()
+        List<CartResponse> items = cartItemRepository.findByUserEmail(email).stream()
                 .map(CartResponse::from)
-                .collect(Collectors.toList());
+                .toList();
+
+        int subTotal = items.stream().mapToInt(item -> item.price() * item.quantity())
+                .sum();
+
+        int shippingFee = (subTotal >= 30000 || subTotal == 0) ? 0 : 3000;
+        int total = subTotal + shippingFee;
+
+        return new CartSummaryResponse(items,shippingFee,shippingFee,total);
     }
 
-    public void deleteCartItem(CartDeleteRequest request) {
+    public void deleteCartItem(Long cartId) {
         String email = SecurityUtil.getCurrentUserEmail();
-        CartItem cartItem = cartItemRepository.findById(request.cartId())
+        CartItem cartItem = cartItemRepository.findById(cartId)
                 .orElseThrow(() -> new BusinessException(BusinessErrorCode.CART_ITEM_NOT_FOUND));
 
         if (!cartItem.getUser().getEmail().equals(email)) {
@@ -62,6 +70,22 @@ public class CartService {
         }
 
         cartItemRepository.delete(cartItem);
+    }
+
+    public void updateCartItemQuantity(Long cartItemId, int quantity) {
+
+        String email = SecurityUtil.getCurrentUserEmail();
+
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new BusinessException(BusinessErrorCode.CART_ITEM_NOT_FOUND));
+
+        if (!cartItem.getUser().getEmail().equals(email)) {
+            throw new BusinessException(BusinessErrorCode.UNAUTHORIZED_CART_ACCESS);
+        }
+
+        cartItem.validateStock(quantity);
+
+        cartItem.updateQuantity(quantity);
     }
 
     private Product findProductById(Long productId) {

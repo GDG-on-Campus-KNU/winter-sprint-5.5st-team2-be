@@ -1,4 +1,4 @@
-package gdgoc.be.dto;
+package gdgoc.be.dto.cart;
 
 import jakarta.validation.constraints.NotNull;
 

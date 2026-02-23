@@ -1,4 +1,4 @@
-package gdgoc.be.dto;
+package gdgoc.be.dto.order;
 
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;

@@ -2,7 +2,7 @@ package gdgoc.be.controller;
 
 import gdgoc.be.common.ApiResponse;
 import gdgoc.be.common.util.SecurityUtil;
-import gdgoc.be.dto.UserResponse;
+import gdgoc.be.dto.user.UserResponse;
 import gdgoc.be.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
