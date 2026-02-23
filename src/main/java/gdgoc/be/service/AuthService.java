@@ -26,15 +26,15 @@ public class AuthService {
 
     @Transactional
     public void signup(SignupRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
+        if (userRepository.existsByEmail(request.email())) {
             throw new BusinessException(BusinessErrorCode.EMAIL_ALREADY_EXISTS);
         }
 
         User user = User.createUser(
-                request.getEmail(),
-                passwordEncoder.encode(request.getPassword()),
-                request.getName(),
-                request.getAddress()
+                request.email(),
+                passwordEncoder.encode(request.password()),
+                request.name(),
+                request.address()
         );
 
         userRepository.save(user);
