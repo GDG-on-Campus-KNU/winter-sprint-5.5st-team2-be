@@ -25,7 +25,7 @@ public record OrderResponse(
     public static OrderResponse from(Order order) {
         return OrderResponse.builder()
                 .orderId(order.getId())
-                .orderDate(order.getCreatedAt()) // orderDate는 createdAt으로 매핑
+                .orderDate(order.getOrderDate()) // orderDate 필드 사용
                 .orderStatus(order.getStatus().name())
                 .address(order.getAddress()) // 추가
                 .orderItems(order.getOrderItems().stream()

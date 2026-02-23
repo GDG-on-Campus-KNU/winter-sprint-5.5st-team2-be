@@ -1,25 +1,25 @@
 package gdgoc.be.dto;
 
-
 import gdgoc.be.domain.CartItem;
 import lombok.Builder;
 
 @Builder
 public record CartResponse(
-        Long itemId,
-        String menuName,
-        int price,
+        Long cartId,
+        Long productId,
+        String productName,
         int quantity,
+        int price,
         boolean isAvailable
 ) {
-
     public static CartResponse from(CartItem item) {
         return CartResponse.builder()
-                .itemId(item.getId())
-                .menuName(item.getMenu().getName())
-                .price(item.getMenu().getPrice())
+                .cartId(item.getId())
+                .productId(item.getProduct().getId())
+                .productName(item.getProduct().getName())
                 .quantity(item.getQuantity())
-                .isAvailable(item.getMenu().getStock() >0)
+                .price(item.getProduct().getPrice())
+                .isAvailable(item.getProduct().isAvailable())
                 .build();
     }
 }

@@ -1,81 +1,68 @@
 package gdgoc.be.domain;
 
-
-import gdgoc.be.exception.BusinessErrorCode;
-import gdgoc.be.exception.BusinessException;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"user_id", "menu_id"})
-})
+@Table(
+        name = "cart_item",
+        uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"user_id", "product_id"})
+}
+)
 public class CartItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name= "user_id", nullable = false)
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name= "menu_id", nullable = false)
-    private Menu menu;
+    @JoinColumn(name= "product_id", nullable = false)
+    private Product product;
 
     @Column(nullable = false)
     private int quantity;
 
     @Builder
-    public CartItem(User user, Menu menu, int quantity) {
+    public CartItem(User user, Product product, int quantity) {
         this.user = user;
-        this.menu = menu;
+        this.product = product;
         this.quantity = quantity;
-    }
-
-
-    public void addQuantity(int amount) {
-        this.quantity += amount;
     }
 
     public void updateQuantity(int quantity) {
         this.quantity = quantity;
     }
 
-    public static CartItem createCartItem(User user, Menu menu, int quantity) {
+    public void addQuantity(int quantity) {
+        this.quantity += quantity;
+    }
+
+    public static CartItem createCartItem(User user, Product product, int quantity) {
         return CartItem.builder()
                 .user(user)
-                .menu(menu)
+                .product(product)
                 .quantity(quantity)
                 .build();
     }
 
-    public static CartItem createEmptyCartItem(User user, Menu menu) {
-
+    public static CartItem createEmptyCartItem(User user, Product product) {
         return CartItem.builder()
                 .user(user)
-                .menu(menu)
+                .product(product)
                 .quantity(0)
                 .build();
     }
 
-    public void updateQuantityWithStockCheck(int newQuantity) {
-        validateStock(newQuantity);
-        this.quantity = newQuantity;
-    }
-
-    public void addQuantityWithStockCheck(int additionQuantity) {
-        int totalQuantity = this.quantity + additionQuantity;
-        validateStock(totalQuantity);
-        this.quantity = totalQuantity;
-    }
-
-    private void validateStock(int targetQuantity) {
-        if(this.menu.getStock() < targetQuantity) {
-            throw new BusinessException(BusinessErrorCode.OUT_OF_STOCK);
+    public void validateStock(int targetQuantity) {
+        if(this.product.getStock() < targetQuantity) {
+            throw new IllegalArgumentException("재고가 부족합니다.");
         }
     }
 }

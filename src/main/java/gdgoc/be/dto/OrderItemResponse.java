@@ -7,20 +7,17 @@ import java.math.BigDecimal;
 
 @Builder
 public record OrderItemResponse(
-        Long orderItemId,
-        Long menuId,
-        String menuName,
-        BigDecimal pricePerItem, // 변경
-        int quantity
+        Long productId,
+        String productName,
+        int quantity,
+        BigDecimal orderPrice
 ) {
-
     public static OrderItemResponse from(OrderItem orderItem) {
         return OrderItemResponse.builder()
-                .orderItemId(orderItem.getId())
-                .menuId(orderItem.getMenu().getId())
-                .menuName(orderItem.getMenu().getName())
-                .pricePerItem(orderItem.getOrderPrice())
+                .productId(orderItem.getProduct().getId())
+                .productName(orderItem.getProduct().getName())
                 .quantity(orderItem.getQuantity())
+                .orderPrice(orderItem.getOrderPrice())
                 .build();
     }
 }

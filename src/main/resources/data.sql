@@ -1,51 +1,50 @@
--- 1. 매장 정보 (Store)
-INSERT INTO store (name, address, phone) VALUES ('경북대 IT호점', '대구 북구 대학로 80', '053-123-4567');
-INSERT INTO store (name, address, phone) VALUES ('복현 오거리점', '대구 북구 복현동', '053-987-6543');
+-- 1. 사용자 정보 (User) - 총 3명 (USER 2, ADMIN 1)
+-- 비밀번호는 'password123' BCrypt 인코딩 값 (예시)
+INSERT INTO users (name, email, password, phone, role, zip_code, address, detail_address)
+VALUES ('홍길동', 'user1@example.com', '$2a$10$7pEXL8tKIsD3EunOskrKquC3/9T8/N9f2B2wU0h7g5O5Y7fI3Nf1S', '010-1234-5678', 'USER', '12345', '서울시 강남구', '테헤란로 123');
 
--- 2. 메뉴 정보 (Menu) - 총 11개 등록 (요구사항 10개 이상 충족)
+INSERT INTO users (name, email, password, phone, role, zip_code, address, detail_address)
+VALUES ('김철수', 'user2@example.com', '$2a$10$7pEXL8tKIsD3EunOskrKquC3/9T8/N9f2B2wU0h7g5O5Y7fI3Nf1S', '010-9876-5432', 'USER', '54321', '부산시 해운대구', '해운대해변로 456');
 
--- 매장 1 메뉴
-INSERT INTO menu (store_id, name, description, price, stock, is_available, category)
-VALUES (1, '치즈 피자', '기본에 충실한 맛', 15000, 10, true, 'PIZZA');
-INSERT INTO menu (store_id, name, description, price, stock, is_available, category)
-VALUES (1, '페퍼로니 피자', '짭짤한 페퍼로니 가득', 18000, 5, true, 'PIZZA');
-INSERT INTO menu (store_id, name, description, price, stock, is_available, category)
-VALUES (1, '불고기 피자', '남녀노소 좋아하는 불고기', 20000, 7, true, 'PIZZA');
-INSERT INTO menu (store_id, name, description, price, stock, is_available, category)
-VALUES (1, '치즈 버거', '두툼한 패티와 치즈', 6500, 20, true, 'BURGER');
-INSERT INTO menu (store_id, name, description, price, stock, is_available, category)
-VALUES (1, '콜라', '시원한 코카콜라', 2000, 100, true, 'BEVERAGE');
+INSERT INTO users (name, email, password, phone, role, zip_code, address, detail_address)
+VALUES ('관리자', 'admin@example.com', '$2a$10$7pEXL8tKIsD3EunOskrKquC3/9T8/N9f2B2wU0h7g5O5Y7fI3Nf1S', '010-0000-0000', 'ADMIN', '00000', '서울시 본사', '관리실');
 
--- 매장 2 메뉴
-INSERT INTO menu (store_id, name, description, price, stock, is_available, category)
-VALUES (2, '후라이드 치킨', '바삭한 오리지널', 17000, 15, true, 'CHICKEN');
-INSERT INTO menu (store_id, name, description, price, stock, is_available, category)
-VALUES (2, '양념 치킨', '매콤달콤 특제 양념', 19000, 12, true, 'CHICKEN');
-INSERT INTO menu (store_id, name, description, price, stock, is_available, category)
-VALUES (2, '새우 버거', '탱글한 새우살 패티', 7000, 18, true, 'BURGER');
-INSERT INTO menu (store_id, name, description, price, stock, is_available, category)
-VALUES (2, '감자 튀김', '갓 튀겨낸 바삭함', 3000, 50, true, 'SIDE');
-INSERT INTO menu (store_id, name, description, price, stock, is_available, category)
-VALUES (2, '사이다', '청량한 스프라이트', 2000, 80, true, 'BEVERAGE');
-INSERT INTO menu (store_id, name, description, price, stock, is_available, category)
-VALUES (2, '어니언 링', '고소한 양파 튀김', 4000, 30, true, 'SIDE');
+-- 2. 상점 정보 (Store)
+INSERT INTO store (name, address, phone) VALUES ('강남점', '서울시 강남구', '02-123-4567');
+INSERT INTO store (name, address, phone) VALUES ('온라인몰', '서울특별시 본사', '080-123-4567');
 
--- 3. 사용자 정보 (Users)
--- 비밀번호 'Demo1234!'의 BCrypt 해시값: $2a$10$8K7pS9U3GzW.S8S8S8S8O.X6X6X6X6X6X6X6X6X6X6X6X6X6X6X6
-INSERT INTO users (name, email, password, role, address)
-VALUES ('성준', 'demo@gdg.com', '$2a$10$8K7pS9U3GzW.S8S8S8S8O.X6X6X6X6X6X6X6X6X6X6X6X6X6X6X6', 'USER', '대구 북구 대학로 80');
-INSERT INTO users (name, email, password, role)
-VALUES ('관리자', 'admin@gdg.com', '$2a$10$8K7pS9U3GzW.S8S8S8S8O.X6X6X6X6X6X6X6X6X6X6X6X6X6X6X6', 'ADMIN');
+-- 3. 상품 정보 (Product)
+-- 브랜드, 이미지URL, 정가, 할인율, 최종가 등 명세 반영
+INSERT INTO products (store_id, brand, name, image_url, original_price, discount_rate, price, stock, is_available, description, rating, category)
+VALUES (2, 'Nike', 'Air Jordan 1 Retro High OG', 'https://images.example.com/nike/aj1.jpg', 200000, 10, 180000, 50, TRUE, 'The classic AJ1 in High OG silhouette.', 4.8, 'CHICKEN'); -- CHICKEN은 임시 카테고리 (필요시 Category enum 수정)
+
+INSERT INTO products (store_id, brand, name, image_url, original_price, discount_rate, price, stock, is_available, description, rating, category)
+VALUES (2, 'Adidas', 'Yeezy Boost 350 V2', 'https://images.example.com/adidas/yeezy350.jpg', 300000, 0, 300000, 20, TRUE, 'Iconic Yeezy Boost 350 V2 in Beluga colorway.', 4.9, 'CHICKEN');
+
+INSERT INTO products (store_id, brand, name, image_url, original_price, discount_rate, price, stock, is_available, description, rating, category)
+VALUES (2, 'Samsung', 'Galaxy S24 Ultra', 'https://images.example.com/samsung/s24u.jpg', 1600000, 5, 1520000, 100, TRUE, 'Samsung Galaxy S24 Ultra with AI features.', 4.7, 'BURGER');
+
+INSERT INTO products (store_id, brand, name, image_url, original_price, discount_rate, price, stock, is_available, description, rating, category)
+VALUES (2, 'Apple', 'iPhone 15 Pro', 'https://images.example.com/apple/iphone15pro.jpg', 1500000, 0, 1500000, 80, TRUE, 'iPhone 15 Pro with Titanium build.', 4.9, 'BURGER');
+
+-- 상품 옵션 및 이미지 샘플
+INSERT INTO product_sizes (product_id, size_option) VALUES (1, '260'), (1, '270'), (1, '280');
+INSERT INTO product_sizes (product_id, size_option) VALUES (2, '255'), (2, '265'), (2, '275');
+
+INSERT INTO product_detail_images (product_id, image_url) VALUES (1, 'https://images.example.com/nike/aj1_detail1.jpg'), (1, 'https://images.example.com/nike/aj1_detail2.jpg');
+INSERT INTO product_gallery_images (product_id, image_url) VALUES (1, 'https://images.example.com/nike/aj1_gallery1.jpg'), (1, 'https://images.example.com/nike/aj1_gallery2.jpg');
 
 -- 4. 쿠폰 정보 (Coupon)
-INSERT INTO coupon (name, discount_type, discount_value, min_order_amount)
-VALUES ('신규 가입 3000원 할인', 'FIXED', 3000, 15000);
-INSERT INTO coupon (name, discount_type, discount_value, min_order_amount)
-VALUES ('주말 10% 할인 쿠폰', 'PERCENT', 10, 20000);
+INSERT INTO coupon (code, name, discount_amount, min_order_amount, expire_date)
+VALUES ('WELCOME2024', '신규 가입 환영 쿠폰', 5000, 20000, '2026-12-31');
 
--- 5. 사용자 쿠폰 할당 (UserCoupon)
-INSERT INTO user_coupon (user_id, coupon_id, is_used) VALUES (1, 1, false);
-INSERT INTO user_coupon (user_id, coupon_id, is_used) VALUES (1, 2, false);
+INSERT INTO coupon (code, name, discount_amount, min_order_amount, expire_date)
+VALUES ('NIKE_SALE', '나이키 브랜드 세일 쿠폰', 10000, 100000, '2026-12-31');
 
--- 6. 장바구니 초기 데이터 (CartItem)
-INSERT INTO cart_item (user_id, menu_id, quantity) VALUES (1, 1, 2);
+-- 5. 유저 쿠폰 매핑 (UserCoupon)
+INSERT INTO user_coupon (user_id, coupon_id, is_used) VALUES (1, 1, FALSE);
+INSERT INTO user_coupon (user_id, coupon_id, is_used) VALUES (1, 2, FALSE);
+
+-- 6. 장바구니 정보 (CartItem)
+INSERT INTO cart_item (user_id, product_id, quantity) VALUES (1, 1, 1);
+INSERT INTO cart_item (user_id, product_id, quantity) VALUES (1, 3, 1);

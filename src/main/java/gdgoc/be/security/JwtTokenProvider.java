@@ -19,8 +19,11 @@ public class JwtTokenProvider {
     @Value("${jwt.secret}")
     private String secretKey;
 
-    @Value("${jwt.expiration:1800000}") // 30분
-    private long validityInMilliseconds;
+    @Value("${jwt.expiration:1800000}") // 30분 (Access Token)
+    private long accessTokenValidityInMilliseconds;
+
+    @Value("${jwt.refresh-expiration:1209600000}") // 14일 (Refresh Token)
+    private long refreshTokenValidityInMilliseconds;
 
     private SecretKey key;
 
@@ -30,6 +33,14 @@ public class JwtTokenProvider {
     }
 
     public String createToken(String email, Role role) {
+        return createJwtToken(email, role, accessTokenValidityInMilliseconds);
+    }
+
+    public String createRefreshToken(String email, Role role) {
+        return createJwtToken(email, role, refreshTokenValidityInMilliseconds);
+    }
+
+    private String createJwtToken(String email, Role role, long validityInMilliseconds) {
         Claims claims = Jwts.claims()
                 .subject(email)
                 .add("role", role.name())
@@ -45,6 +56,7 @@ public class JwtTokenProvider {
                 .signWith(key)
                 .compact();
     }
+
     public String getRole(String token) {
         return Jwts.parser()
                 .verifyWith(key)
