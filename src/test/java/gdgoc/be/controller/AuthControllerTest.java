@@ -1,6 +1,7 @@
 package gdgoc.be.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import gdgoc.be.common.util.SecurityUtil;
 import gdgoc.be.dto.AdminSignupRequest;
 import gdgoc.be.dto.CheckEmailResponse;
 import gdgoc.be.dto.login.LoginRequest;
@@ -9,10 +10,13 @@ import gdgoc.be.dto.user.UserSignupRequest;
 import gdgoc.be.service.AuthService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -21,6 +25,7 @@ import java.util.Map;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mockStatic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -160,21 +165,27 @@ public class AuthControllerTest {
     @Test
     @DisplayName("토큰 갱신 테스트")
     void refreshTest() throws Exception {
-        Map<String, String> request = Map.of("refreshToken", "old-refresh-token");
+        gdgoc.be.dto.login.TokenRefreshRequest request = new gdgoc.be.dto.login.TokenRefreshRequest("valid-refresh-token");
+        given(authService.refresh("valid-refresh-token")).willReturn("new-access-token");
 
         mockMvc.perform(post("/api/auth/refresh")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.accessToken").exists());
+                .andExpect(jsonPath("$.data.accessToken").value("new-access-token"));
     }
 
     @Test
     @DisplayName("로그아웃 테스트")
+    @WithMockUser(username = "test@example.com")
     void logoutTest() throws Exception {
-        mockMvc.perform(post("/api/auth/logout"))
-                .andDo(print())
-                .andExpect(status().isOk());
+        try (MockedStatic<SecurityUtil> mockedSecurityUtil = mockStatic(SecurityUtil.class)) {
+            mockedSecurityUtil.when(SecurityUtil::getCurrentUserEmail).thenReturn("test@example.com");
+
+            mockMvc.perform(post("/api/auth/logout"))
+                    .andDo(print())
+                    .andExpect(status().isOk());
+        }
     }
 }

@@ -1,18 +1,24 @@
 package gdgoc.be.controller;
 
 import gdgoc.be.common.api.ApiResponse;
+import gdgoc.be.common.util.SecurityUtil;
 import gdgoc.be.dto.*;
 import gdgoc.be.dto.login.LoginRequest;
 import gdgoc.be.dto.login.LoginResponse;
+import gdgoc.be.dto.login.TokenRefreshRequest;
+import gdgoc.be.dto.login.TokenRefreshResponse;
 import gdgoc.be.dto.user.UserSignupRequest;
+import gdgoc.be.exception.BusinessErrorCode;
+import gdgoc.be.exception.BusinessException;
 import gdgoc.be.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import java.util.List;
 
 @Tag(name = "Authentication", description = "회원가입 및 로그인 API")
 @RestController
@@ -45,14 +51,16 @@ public class AuthController {
 
     @Operation(summary = "토큰 갱신", description = "리프레시 토큰을 통해 액세스 토큰을 갱신합니다.")
     @PostMapping("/refresh")
-    public ApiResponse<Map<String, String>> refresh(@RequestBody Map<String, String> request) {
-        // TODO: Implement refresh token logic
-        return ApiResponse.success(Map.of("accessToken", "new-access-token"));
+    public ApiResponse<TokenRefreshResponse> refresh(@Valid @RequestBody TokenRefreshRequest request) {
+        String newAccessToken = authService.refresh(request.refreshToken());
+        return ApiResponse.success(new TokenRefreshResponse(newAccessToken));
     }
 
-    @Operation(summary = "로그아웃", description = "현재 세션을 로그아웃합니다.")
+    @Operation(summary = "로그아웃", description = "현재 세션을 로그아웃하고 리프레시 토큰을 무효화합니다.", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping("/logout")
     public ApiResponse<Void> logout() {
+        String email = SecurityUtil.getCurrentUserEmail();
+        authService.logout(email);
         return ApiResponse.success(null);
     }
 
