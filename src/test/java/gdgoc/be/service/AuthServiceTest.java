@@ -58,7 +58,7 @@ class AuthServiceTest {
         LoginResponse response = authService.login(request);
 
         // then
-        assertThat(response.getAccessToken()).isEqualTo("mock-token");
+        assertThat(response.accessToken()).isEqualTo("mock-token");
     }
 
     @Test

@@ -35,15 +35,15 @@ INSERT INTO product_detail_images (product_id, image_url) VALUES (1, 'https://im
 INSERT INTO product_gallery_images (product_id, image_url) VALUES (1, 'https://images.example.com/nike/aj1_gallery1.jpg'), (1, 'https://images.example.com/nike/aj1_gallery2.jpg');
 
 -- 4. 쿠폰 정보 (Coupon)
-INSERT INTO coupon (code, name, discount_amount, min_order_amount, expire_date)
-VALUES ('WELCOME2024', '신규 가입 환영 쿠폰', 5000, 20000, '2026-12-31');
+INSERT INTO coupon (name, discount_type, discount_value, expiry_date)
+VALUES ('신규 가입 환영 쿠폰', 'FIXED', 5000, '2026-12-31 23:59:59');
 
-INSERT INTO coupon (code, name, discount_amount, min_order_amount, expire_date)
-VALUES ('NIKE_SALE', '나이키 브랜드 세일 쿠폰', 10000, 100000, '2026-12-31');
+INSERT INTO coupon (name, discount_type, discount_value, expiry_date)
+VALUES ('나이키 브랜드 세일 쿠폰', 'PERCENT', 10, '2026-12-31 23:59:59');
 
 -- 5. 유저 쿠폰 매핑 (UserCoupon)
-INSERT INTO user_coupon (user_id, coupon_id, is_used) VALUES (1, 1, FALSE);
-INSERT INTO user_coupon (user_id, coupon_id, is_used) VALUES (1, 2, FALSE);
+INSERT INTO user_coupon (user_id, coupon_id, status) VALUES (1, 1, 'ACTIVE');
+INSERT INTO user_coupon (user_id, coupon_id, status) VALUES (1, 2, 'ACTIVE');
 
 -- 6. 장바구니 정보 (CartItem)
 INSERT INTO cart_item (user_id, product_id, quantity, selected_size) VALUES (1, 1, 1, '270');

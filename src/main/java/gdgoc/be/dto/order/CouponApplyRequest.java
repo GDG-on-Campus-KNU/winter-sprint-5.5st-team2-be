@@ -1,0 +1,12 @@
+package gdgoc.be.dto.order;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import java.util.List;
+
+public record CouponApplyRequest(
+    @Valid
+    @NotNull(message = "주문할 상품 목록은 필수입니다.")
+    List<OrderItemRequest> orderItems
+) {
+}

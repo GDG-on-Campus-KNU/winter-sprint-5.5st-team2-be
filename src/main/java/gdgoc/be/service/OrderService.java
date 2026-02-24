@@ -6,6 +6,7 @@ import gdgoc.be.domain.Order;
 import gdgoc.be.domain.OrderItem;
 import gdgoc.be.domain.Product;
 import gdgoc.be.domain.User;
+import gdgoc.be.domain.UserCoupon;
 import gdgoc.be.dto.CalculationResult;
 import gdgoc.be.dto.order.OrderItemRequest;
 import gdgoc.be.dto.order.OrderRequest;
@@ -52,21 +53,23 @@ public class OrderService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
 
-        List<OrderItem> orderItems = createOrderItems(request.orderItems());
+        List<OrderItem> orderItems = createOrderItems(request.orderItems(), user.getId());
 
-        CalculationResult calculation = orderCalculator.calculate(
-                orderItems,
-                request.couponId(),
-                user.getId()
-        );
+        CalculationResult calculation = orderCalculator.calculate(orderItems);
 
         Order order = Order.createOrder(
                 user,
                 calculation,
-                request.couponId(),
+                null, // 주문 레벨 쿠폰은 더 이상 사용하지 않음
                 request.shippingAddress()
         );
         orderItems.forEach(order::addOrderItem);
+
+        // 개별 적용된 모든 쿠폰 사용 처리
+        orderItems.stream()
+                .map(OrderItem::getAppliedCoupon)
+                .filter(java.util.Objects::nonNull)
+                .forEach(UserCoupon::use);
 
         Order savedOrder = orderRepository.save(order);
 
@@ -76,14 +79,20 @@ public class OrderService {
         return OrderResponse.from(savedOrder);
     }
 
-    private List<OrderItem> createOrderItems(List<OrderItemRequest> itemRequests) {
+    private List<OrderItem> createOrderItems(List<OrderItemRequest> itemRequests, Long userId) {
         return itemRequests.stream()
                 .map(itemRequest -> {
                     Product product = productRepository.findById(itemRequest.menuId())
                             .orElseThrow(() -> new BusinessException(BusinessErrorCode.PRODUCT_NOT_FOUND));
 
+                    UserCoupon userCoupon = null;
+                    if (itemRequest.appliedCouponId() != null) {
+                        userCoupon = userCouponRepository.findByIdAndUserId(itemRequest.appliedCouponId(), userId)
+                                .orElseThrow(() -> new BusinessException(BusinessErrorCode.COUPON_NOT_FOUND));
+                    }
+
                     product.reduceStock(itemRequest.quantity());
-                    return OrderItem.createOrderItem(product, itemRequest.quantity(), itemRequest.selectedSize());
+                    return OrderItem.createOrderItem(product, itemRequest.quantity(), itemRequest.selectedSize(), userCoupon);
                 })
                 .collect(Collectors.toList());
     }
@@ -111,9 +120,43 @@ public class OrderService {
     @Transactional(readOnly = true)
     public List<UserCouponResponse> getMyCoupons() {
         String email = SecurityUtil.getCurrentUserEmail();
-        return userCouponRepository.findByUserEmail(email).stream()
+        return userCouponRepository.findByUserEmailAndStatus(email, UserCoupon.CouponStatus.ACTIVE).stream()
                 .map(UserCouponResponse::from)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public gdgoc.be.dto.order.CouponApplyResponse applyCoupon(Long couponId, gdgoc.be.dto.order.CouponApplyRequest request) {
+        String email = SecurityUtil.getCurrentUserEmail();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
+
+        // 1. 임시로 주문 아이템들 생성 (DB 저장 X)
+        List<OrderItem> orderItems = request.orderItems().stream()
+                .map(itemRequest -> {
+                    Product product = productRepository.findById(itemRequest.menuId())
+                            .orElseThrow(() -> new BusinessException(BusinessErrorCode.PRODUCT_NOT_FOUND));
+                    
+                    UserCoupon userCoupon = null;
+                    if (itemRequest.appliedCouponId() != null) {
+                        userCoupon = userCouponRepository.findByIdAndUserId(itemRequest.appliedCouponId(), user.getId())
+                                .orElseThrow(() -> new BusinessException(BusinessErrorCode.COUPON_NOT_FOUND));
+                    }
+                    
+                    return OrderItem.createOrderItem(product, itemRequest.quantity(), itemRequest.selectedSize(), userCoupon);
+                })
+                .collect(Collectors.toList());
+
+        // 2. 계산 모듈 사용
+        CalculationResult calculation = orderCalculator.calculate(orderItems);
+
+        return new gdgoc.be.dto.order.CouponApplyResponse(
+                calculation.totalAmount(),
+                calculation.discountAmount(),
+                calculation.shippingFee(),
+                calculation.finalAmount(),
+                "복수 쿠폰 적용됨"
+        );
     }
 
     public void cancelOrder(Long orderId) {

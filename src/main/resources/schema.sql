@@ -82,11 +82,10 @@ CREATE TABLE cart_item (
 DROP TABLE IF EXISTS coupon CASCADE;
 CREATE TABLE coupon (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    code VARCHAR(50) NOT NULL UNIQUE,
     name VARCHAR(100) NOT NULL,
-    discount_amount INT NOT NULL,
-    min_order_amount INT NOT NULL,
-    expire_date DATE NOT NULL
+    discount_type VARCHAR(20) NOT NULL,
+    discount_value DECIMAL(19, 2) NOT NULL,
+    expiry_date TIMESTAMP
 );
 
 -- 6. 주문 (Order)
@@ -94,7 +93,6 @@ DROP TABLE IF EXISTS orders CASCADE;
 CREATE TABLE orders (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
-    coupon_id BIGINT,
     total_amount DECIMAL(19, 2) NOT NULL,
     discount_amount DECIMAL(19, 2) NOT NULL,
     delivery_fee DECIMAL(19, 2) NOT NULL DEFAULT 0,
@@ -103,19 +101,21 @@ CREATE TABLE orders (
     payment_status VARCHAR(50) NOT NULL,
     address VARCHAR(255),
     order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (coupon_id) REFERENCES coupon(id)
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
--- 7. 주문 상세 (OrderItem) 수정
+-- 7. 주문 상세 (OrderItem)
 DROP TABLE IF EXISTS order_item CASCADE;
 CREATE TABLE order_item (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     order_id BIGINT NOT NULL,
     product_id BIGINT NOT NULL,
+    user_coupon_id BIGINT,
     quantity INT NOT NULL,
+    original_price DECIMAL(19, 2) NOT NULL,
+    discount_amount DECIMAL(19, 2) NOT NULL,
     order_price DECIMAL(19, 2) NOT NULL,
-    selected_size VARCHAR(50) NOT NULL, -- 이 줄을 추가해야 합니다!
+    selected_size VARCHAR(50) NOT NULL,
     FOREIGN KEY (order_id) REFERENCES orders(id),
     FOREIGN KEY (product_id) REFERENCES products(id)
 );
@@ -126,7 +126,7 @@ CREATE TABLE user_coupon (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
     coupon_id BIGINT NOT NULL,
-    is_used BOOLEAN DEFAULT FALSE,
+    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (coupon_id) REFERENCES coupon(id)
 );

@@ -12,6 +12,8 @@ public record OrderItemRequest(
         int quantity,
 
         @NotBlank(message = "선택된 사이즈는 필수입니다.")
-        String selectedSize
+        String selectedSize,
+
+        Long appliedCouponId
 ) {
 }
