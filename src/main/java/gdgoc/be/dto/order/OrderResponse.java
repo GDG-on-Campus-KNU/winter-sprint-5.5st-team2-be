@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 @Builder
 public record OrderResponse(
         Long orderId,
+        String representativeItem,
         LocalDateTime orderDate,
         String orderStatus,
         String address,
@@ -23,19 +24,22 @@ public record OrderResponse(
 ) {
 
     public static OrderResponse from(Order order) {
-        return OrderResponse.builder()
-                .orderId(order.getId())
-                .orderDate(order.getOrderDate()) // orderDate 필드 사용
-                .orderStatus(order.getStatus().name())
-                .address(order.getAddress()) // 추가
-                .orderItems(order.getOrderItems().stream()
-                        .map(OrderItemResponse::from)
-                        .collect(Collectors.toList()))
-                .totalPrice(order.getTotalAmount()) // totalAmount 매핑
-                .totalDiscount(order.getDiscountAmount()) // 매핑
-                .shippingFee(order.getDeliveryFee())   // 매핑
-                .finalPrice(order.getFinalAmount()) // 매핑
-                .couponId(order.getCouponId()) // couponId 매핑
-                .build();
+        List<OrderItemResponse> itemNum = order.getOrderItems().stream()
+                .map(OrderItemResponse::from)
+                .toList();
+
+        String repName = itemNum.get(0).productName();
+        if (itemNum.size() > 1) {
+            repName += " 외 " + (itemNum.size() - 1) + "건";
+        }
+
+        return new OrderResponse(
+                order.getId(),
+                repName,
+                order.getOrderDate(),
+                order.getStatus().name(),
+                order.getFinalAmount(),
+                itemNum
+        );
     }
 }

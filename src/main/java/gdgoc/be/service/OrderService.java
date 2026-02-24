@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +30,22 @@ public class OrderService {
     private final UserCouponRepository userCouponRepository;
     private final OrderCalculator orderCalculator;
     private final CartItemRepository cartItemRepository;
+
+    @Transactional(readOnly = true)
+    public List<OrderResponse> getMyOrders(Integer months) {
+        String email = SecurityUtil.getCurrentUserEmail();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
+
+        List<Order> orders;
+        if (months != null && months > 0) {
+            LocalDateTime startDate = LocalDateTime.now().minusMonths(months);
+            orders = orderRepository.findByUserIdAndOrderDateAfterOrderByOrderDateDesc(user.getId(), startDate);
+        } else {
+            orders = orderRepository.findByUserIdOrderByOrderDateDesc(user.getId());
+        }
+        return orders.stream().map(OrderResponse::from).toList();
+    }
 
     public OrderResponse createOrder(OrderRequest request) {
         String email = SecurityUtil.getCurrentUserEmail();
@@ -78,17 +95,6 @@ public class OrderService {
             cartItemRepository.findByUserIdAndProductId(userId, item.productId())
                     .ifPresent(cartItemRepository::delete);
         }
-    }
-
-    @Transactional(readOnly = true)
-    public List<OrderResponse> getMyOrders() {
-        String email = SecurityUtil.getCurrentUserEmail();
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
-
-        return orderRepository.findByUser_IdOrderByOrderDateDesc(user.getId()).stream()
-                .map(OrderResponse::from)
-                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
