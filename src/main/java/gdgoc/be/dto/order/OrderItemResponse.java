@@ -12,7 +12,7 @@ public record OrderItemResponse(
         String imageUrl,
         String selectedSize,
         int quantity,
-        BigDecimal orderPrice
+        Integer orderPrice
 ) {
     public static OrderItemResponse from(OrderItem orderItem) {
         return new OrderItemResponse(

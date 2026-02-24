@@ -67,7 +67,8 @@ public class Order {
     public enum OrderStatus {
         PENDING, COMPLETED, CANCELLED
     }
-    public enum PaymentStatus { PAID, UNPAID, CANCELLED }
+
+    public enum PaymentStatus {PAID, UNPAID, CANCELLED}
 
     @Builder
     private Order(User user, BigDecimal totalAmount, BigDecimal discountAmount,
@@ -106,5 +107,14 @@ public class Order {
         }
         this.status = OrderStatus.CANCELLED;
         this.paymentStatus = PaymentStatus.CANCELLED;
+    }
+
+    public void completePayment() {
+        if (this.status == OrderStatus.CANCELLED) {
+            throw new BusinessException(BusinessErrorCode.BAD_REQUEST);
+        }
+
+        this.status = OrderStatus.COMPLETED;
+        this.paymentStatus = PaymentStatus.PAID;
     }
 }

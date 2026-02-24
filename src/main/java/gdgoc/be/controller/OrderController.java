@@ -1,6 +1,7 @@
 package gdgoc.be.controller;
 
 import gdgoc.be.common.ApiResponse;
+import gdgoc.be.dto.order.OrderConfirmRequest;
 import gdgoc.be.dto.order.OrderRequest;
 import gdgoc.be.dto.order.OrderResponse;
 import gdgoc.be.service.OrderService;

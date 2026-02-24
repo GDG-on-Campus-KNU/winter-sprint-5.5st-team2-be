@@ -137,8 +137,16 @@ public class OrderService {
     }
     @Transactional
     public boolean confirmPayment(String paymentKey, Long orderId, Integer amount) {
-        // PG사 API 호출 로직 (토스페이먼츠 등 연동 시)
-        // 성공 시 주문 상태를 COMPLETED로 변경
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new BusinessException(BusinessErrorCode.ORDER_NOT_FOUND));
+
+
+        if (order.getFinalAmount().intValue() != amount) {
+            throw new BusinessException(BusinessErrorCode.BAD_REQUEST);
+        }
+
+        order.completePayment();
         return true;
     }
 
