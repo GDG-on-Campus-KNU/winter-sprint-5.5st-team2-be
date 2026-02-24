@@ -2,8 +2,11 @@ package gdgoc.be.service;
 
 import gdgoc.be.Repository.*;
 import gdgoc.be.common.util.SecurityUtil;
-import gdgoc.be.domain.*;
-import gdgoc.be.dto.*;
+import gdgoc.be.domain.Order;
+import gdgoc.be.domain.OrderItem;
+import gdgoc.be.domain.Product;
+import gdgoc.be.domain.User;
+import gdgoc.be.dto.CalculationResult;
 import gdgoc.be.dto.order.OrderItemRequest;
 import gdgoc.be.dto.order.OrderRequest;
 import gdgoc.be.dto.order.OrderResponse;
@@ -11,10 +14,12 @@ import gdgoc.be.dto.user.UserCouponResponse;
 import gdgoc.be.exception.BusinessErrorCode;
 import gdgoc.be.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,21 +37,13 @@ public class OrderService {
     private final CartItemRepository cartItemRepository;
 
     @Transactional(readOnly = true)
-    public List<OrderResponse> getMyOrders(Long orderId) {
+    public Page<OrderResponse> getMyOrders(Pageable pageable) {
         String email = SecurityUtil.getCurrentUserEmail();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
 
-        if (orderId != null) {
-            return orderRepository.findById(orderId)
-                    .filter(o -> o.getUser().getId().equals(user.getId()))
-                    .map(o -> List.of(OrderResponse.from(o)))
-                    .orElse(List.of());
-        }
-
-        return orderRepository.findByUser_IdOrderByOrderDateDesc(user.getId()).stream()
-                .map(OrderResponse::from)
-                .collect(Collectors.toList());
+        return orderRepository.findByUserIdOrderByOrderDateDesc(user.getId(), pageable)
+                .map(OrderResponse::from);
     }
 
     public OrderResponse createOrder(OrderRequest request) {

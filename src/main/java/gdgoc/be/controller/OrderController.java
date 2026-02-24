@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,8 +26,9 @@ public class OrderController {
 
     @Operation(summary = "주문 목록 조회", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping
-    public ApiResponse<List<OrderResponse>> getOrders(@RequestParam(required = false) Long orderId) {
-        return ApiResponse.success(orderService.getMyOrders(orderId));
+    public ApiResponse<Page<OrderResponse>> getOrders(Pageable pageable) {
+        // 명세서 공통 규칙: page, size, totalElements 등 처리를 위해 Page 반환
+        return ApiResponse.success(orderService.getMyOrders(pageable));
     }
 
     @Operation(summary = "주문 생성", security = @SecurityRequirement(name = "bearerAuth"))
@@ -51,12 +54,11 @@ public class OrderController {
 
     @Operation(summary = "결제 승인", description = "PG 연동 후 최종 결제를 확정합니다.")
     @PostMapping("/payments/confirm")
-    public ApiResponse<Boolean> confirmPayment(@RequestBody Map<String, Object> paymentData) {
-        // 명세서 규격: paymentKey, orderId, amount
-        String key = (String) paymentData.get("paymentKey");
-        Long id = Long.valueOf(paymentData.get("orderId").toString());
-        Integer amt = (Integer) paymentData.get("amount");
-
-        return ApiResponse.success(orderService.confirmPayment(key, id, amt));
+    public ApiResponse<Boolean> confirmPayment(@Valid @RequestBody OrderConfirmRequest request) {
+        return ApiResponse.success(orderService.confirmPayment(
+                request.paymentKey(),
+                request.orderId(),
+                request.amount()
+        ));
     }
 }
