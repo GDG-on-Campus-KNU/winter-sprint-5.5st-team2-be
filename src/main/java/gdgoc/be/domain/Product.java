@@ -127,4 +127,11 @@ public class Product {
             this.isAvailable = false;
         }
     }
+
+    public void addStock(int quantity) {
+        this.stock += quantity;
+        if (this.stock > 0) {
+            this.isAvailable = true;
+        }
+    }
 }

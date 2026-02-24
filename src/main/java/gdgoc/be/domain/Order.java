@@ -1,6 +1,8 @@
 package gdgoc.be.domain;
 
 import gdgoc.be.dto.CalculationResult;
+import gdgoc.be.exception.BusinessErrorCode;
+import gdgoc.be.exception.BusinessException;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -46,6 +48,10 @@ public class Order {
     @Column(nullable = false, length = 50)
     private OrderStatus status; // PENDING, COMPLETED, CANCELLED
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 50)
+    private PaymentStatus paymentStatus;
+
     @Column(length = 255)
     private String address;
 
@@ -62,6 +68,8 @@ public class Order {
         PENDING, COMPLETED, CANCELLED
     }
 
+    public enum PaymentStatus {PAID, UNPAID, CANCELLED}
+
     @Builder
     private Order(User user, BigDecimal totalAmount, BigDecimal discountAmount,
                   BigDecimal deliveryFee, BigDecimal finalAmount, Long couponId, String address) {
@@ -73,6 +81,7 @@ public class Order {
         this.couponId = couponId;
         this.address = address;
         this.status = OrderStatus.PENDING;
+        this.paymentStatus = PaymentStatus.PAID;
     }
 
     public static Order createOrder(User user, CalculationResult result, Long couponId, String address) {
@@ -90,5 +99,22 @@ public class Order {
     public void addOrderItem(OrderItem orderItem) {
         orderItems.add(orderItem);
         orderItem.setOrder(this);
+    }
+
+    public void cancel() {
+        if (this.status == OrderStatus.CANCELLED) {
+            throw new BusinessException(BusinessErrorCode.BAD_REQUEST);
+        }
+        this.status = OrderStatus.CANCELLED;
+        this.paymentStatus = PaymentStatus.CANCELLED;
+    }
+
+    public void completePayment() {
+        if (this.status == OrderStatus.CANCELLED) {
+            throw new BusinessException(BusinessErrorCode.BAD_REQUEST);
+        }
+
+        this.status = OrderStatus.COMPLETED;
+        this.paymentStatus = PaymentStatus.PAID;
     }
 }

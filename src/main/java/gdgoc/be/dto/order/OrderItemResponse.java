@@ -9,15 +9,19 @@ import java.math.BigDecimal;
 public record OrderItemResponse(
         Long productId,
         String productName,
-        int quantity,
-        BigDecimal orderPrice
+        String imageUrl,
+        String selectedSize,
+        Integer quantity,
+        Integer orderPrice
 ) {
     public static OrderItemResponse from(OrderItem orderItem) {
-        return OrderItemResponse.builder()
-                .productId(orderItem.getProduct().getId())
-                .productName(orderItem.getProduct().getName())
-                .quantity(orderItem.getQuantity())
-                .orderPrice(orderItem.getOrderPrice())
-                .build();
+        return new OrderItemResponse(
+                orderItem.getProduct().getId(),
+                orderItem.getProduct().getName(),
+                orderItem.getProduct().getImageUrl(),
+                orderItem.getSelectedSize(),
+                orderItem.getQuantity(),
+                orderItem.getOrderPrice().intValue()
+        );
     }
 }

@@ -24,23 +24,27 @@ public class OrderItem {
     private Product product;
 
     @Column(nullable = false)
-    private int quantity;
+    private Integer quantity;
 
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal orderPrice;
 
+    @Column(nullable = false)
+    private String selectedSize;
+
     @Builder
-    private OrderItem(Product product, int quantity, BigDecimal orderPrice) {
+    private OrderItem(Product product, int quantity, BigDecimal orderPrice, String selectedSize) {
         this.product = product;
         this.quantity = quantity;
         this.orderPrice = orderPrice;
+        this.selectedSize = selectedSize;
     }
 
     public void setOrder(Order order) {
         this.order = order;
     }
 
-    public static OrderItem createOrderItem(Product product, int quantity) {
+    public static OrderItem createOrderItem(Product product, int quantity, String selectedSize) {
         BigDecimal calculatedPrice = BigDecimal.valueOf(product.getPrice())
                 .multiply(BigDecimal.valueOf(quantity));
 
@@ -48,6 +52,7 @@ public class OrderItem {
                 .product(product)
                 .quantity(quantity)
                 .orderPrice(calculatedPrice)
+                .selectedSize(selectedSize)
                 .build();
     }
 }

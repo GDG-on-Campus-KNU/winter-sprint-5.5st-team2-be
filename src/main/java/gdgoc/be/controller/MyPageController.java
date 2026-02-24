@@ -1,6 +1,8 @@
 package gdgoc.be.controller;
 
-import gdgoc.be.common.ApiResponse;
+import gdgoc.be.Repository.OrderRepository;
+import gdgoc.be.Repository.UserRepository;
+import gdgoc.be.common.api.ApiResponse;
 import gdgoc.be.dto.order.OrderResponse;
 import gdgoc.be.dto.user.UserCouponResponse;
 import gdgoc.be.service.OrderService;
@@ -8,6 +10,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,11 +26,13 @@ import java.util.List;
 public class MyPageController {
 
     private final OrderService orderService;
+    private final UserRepository userRepository;
+    private final OrderRepository orderRepository;
 
     @Operation(summary = "내 주문 목록 조회", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/orders")
-    public ApiResponse<List<OrderResponse>> getMyOrders() {
-        return ApiResponse.success(orderService.getMyOrders());
+    public ApiResponse<Page<OrderResponse>> getMyOrders(Pageable pageable) {
+        return ApiResponse.success(orderService.getMyOrders(pageable));
     }
 
     @Operation(summary = "내 쿠폰함 조회", security = @SecurityRequirement(name = "bearerAuth"))
