@@ -1,4 +1,4 @@
-package gdgoc.be.dto;
+package gdgoc.be.dto.order;
 
 import gdgoc.be.domain.OrderItem;
 import lombok.Builder;

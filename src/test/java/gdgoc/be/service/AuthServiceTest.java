@@ -2,8 +2,8 @@ package gdgoc.be.service;
 
 import gdgoc.be.domain.Role;
 import gdgoc.be.domain.User;
-import gdgoc.be.dto.LoginRequest;
-import gdgoc.be.dto.LoginResponse;
+import gdgoc.be.dto.login.LoginRequest;
+import gdgoc.be.dto.login.LoginResponse;
 import gdgoc.be.exception.BusinessErrorCode;
 import gdgoc.be.exception.BusinessException;
 import gdgoc.be.Repository.UserRepository;
@@ -20,7 +20,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)

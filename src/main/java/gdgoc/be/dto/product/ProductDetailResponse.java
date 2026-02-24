@@ -1,4 +1,4 @@
-package gdgoc.be.dto;
+package gdgoc.be.dto.product;
 
 import gdgoc.be.domain.Product;
 import lombok.*;

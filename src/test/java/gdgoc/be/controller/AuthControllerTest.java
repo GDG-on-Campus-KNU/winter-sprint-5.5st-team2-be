@@ -1,8 +1,8 @@
 package gdgoc.be.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import gdgoc.be.dto.LoginRequest;
-import gdgoc.be.dto.LoginResponse;
+import gdgoc.be.dto.login.LoginRequest;
+import gdgoc.be.dto.login.LoginResponse;
 import gdgoc.be.service.AuthService;
 import gdgoc.be.security.JwtTokenProvider;
 import org.junit.jupiter.api.DisplayName;

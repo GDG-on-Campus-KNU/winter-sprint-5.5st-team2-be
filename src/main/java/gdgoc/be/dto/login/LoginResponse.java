@@ -1,4 +1,4 @@
-package gdgoc.be.dto;
+package gdgoc.be.dto.login;
 
 import lombok.Builder;
 

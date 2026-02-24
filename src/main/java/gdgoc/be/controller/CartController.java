@@ -1,9 +1,9 @@
 package gdgoc.be.controller;
 
 import gdgoc.be.common.ApiResponse;
-import gdgoc.be.dto.CartDeleteRequest;
-import gdgoc.be.dto.CartRequest;
-import gdgoc.be.dto.CartResponse;
+import gdgoc.be.dto.cart.CartRequest;
+import gdgoc.be.dto.cart.CartSummaryResponse;
+import gdgoc.be.dto.cart.CartUpdateRequest;
 import gdgoc.be.service.CartService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -22,26 +22,46 @@ public class CartController {
 
     private final CartService cartService;
 
+    @Operation(summary = "내 장바구니 조회", description = "현재 사용자의 장바구니 목록을 조회합니다.",
+            security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping
+    public ApiResponse<CartSummaryResponse> getMyCart() {
+        return ApiResponse.success(cartService.getMyCart());
+    }
+
     @Operation(summary = "장바구니 담기", description = "상품을 장바구니에 추가합니다.", 
                security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping
     public ApiResponse<Void> addCart(@Valid @RequestBody CartRequest request) {
-        cartService.addProductToCart(request.productId(), request.quantity());
+        cartService.addProductToCart(request);
         return ApiResponse.success(null);
     }
 
-    @Operation(summary = "내 장바구니 조회", description = "현재 사용자의 장바구니 목록을 조회합니다.", 
-               security = @SecurityRequirement(name = "bearerAuth"))
-    @GetMapping
-    public ApiResponse<List<CartResponse>> getMyCart() {
-        return ApiResponse.success(cartService.getMyCart());
-    }
 
     @Operation(summary = "장바구니 항목 삭제", description = "장바구니에서 특정 상품을 제거합니다.", 
                security = @SecurityRequirement(name = "bearerAuth"))
+    @DeleteMapping("/{cartItemId}")
+    public ApiResponse<Void> deleteCart(@PathVariable Long cartItemId) {
+        cartService.deleteCartItem(cartItemId);
+        return ApiResponse.success(null);
+    }
+
+    @Operation(summary = "장바구니 항목 수정", description = "수량 또는 선택 사이즈를 변경합니다.",
+            security = @SecurityRequirement(name = "bearerAuth"))
+    @PatchMapping("/{cartItemId}")
+    public ApiResponse<Void> updateCart(
+            @PathVariable Long cartItemId,
+            @Valid @RequestBody CartUpdateRequest request) { // DTO 사용
+
+        cartService.updateCartItem(cartItemId, request);
+        return ApiResponse.success(null);
+    }
+
+    @Operation(summary = "장바구니 선택/전체 삭제", description = "ID 리스트를 보내면 선택 삭제, 보내지 않으면 전체 삭제를 수행합니다.",
+            security = @SecurityRequirement(name = "bearerAuth"))
     @DeleteMapping
-    public ApiResponse<Void> deleteCart(@Valid @RequestBody CartDeleteRequest request) {
-        cartService.deleteCartItem(request);
+    public ApiResponse<Void> deleteCartItems(@RequestBody(required = false) List<Long> cartItemIds) {
+        cartService.deleteCartItems(cartItemIds);
         return ApiResponse.success(null);
     }
 }

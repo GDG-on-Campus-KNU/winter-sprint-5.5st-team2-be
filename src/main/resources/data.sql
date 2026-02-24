@@ -46,5 +46,5 @@ INSERT INTO user_coupon (user_id, coupon_id, is_used) VALUES (1, 1, FALSE);
 INSERT INTO user_coupon (user_id, coupon_id, is_used) VALUES (1, 2, FALSE);
 
 -- 6. 장바구니 정보 (CartItem)
-INSERT INTO cart_item (user_id, product_id, quantity) VALUES (1, 1, 1);
-INSERT INTO cart_item (user_id, product_id, quantity) VALUES (1, 3, 1);
+INSERT INTO cart_item (user_id, product_id, quantity, selected_size) VALUES (1, 1, 1, '270');
+INSERT INTO cart_item (user_id, product_id, quantity, selected_size) VALUES (1, 3, 1, 'FREE');

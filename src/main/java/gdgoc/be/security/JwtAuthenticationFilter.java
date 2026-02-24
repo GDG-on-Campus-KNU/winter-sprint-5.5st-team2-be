@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -19,6 +20,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+
+@Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -29,6 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String token = resolveToken(request);
 
+        log.info("token: " + token);
         if (token != null && jwtTokenProvider.validateToken(token)) {
             String email = jwtTokenProvider.getEmail(token);
             String role = jwtTokenProvider.getRole(token);

@@ -1,4 +1,4 @@
-package gdgoc.be.dto;
+package gdgoc.be.dto.user;
 
 import gdgoc.be.domain.User;
 import lombok.Builder;

@@ -1,8 +1,8 @@
 package gdgoc.be.controller;
 
 import gdgoc.be.common.ApiResponse;
-import gdgoc.be.dto.ProductDetailResponse;
-import gdgoc.be.dto.ProductResponse;
+import gdgoc.be.dto.product.ProductDetailResponse;
+import gdgoc.be.dto.product.ProductResponse;
 import gdgoc.be.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
