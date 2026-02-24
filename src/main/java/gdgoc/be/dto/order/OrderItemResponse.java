@@ -11,7 +11,7 @@ public record OrderItemResponse(
         String productName,
         String imageUrl,
         String selectedSize,
-        int quantity,
+        Integer quantity,
         Integer orderPrice
 ) {
     public static OrderItemResponse from(OrderItem orderItem) {
@@ -21,7 +21,7 @@ public record OrderItemResponse(
                 orderItem.getProduct().getImageUrl(),
                 orderItem.getSelectedSize(),
                 orderItem.getQuantity(),
-                orderItem.getOrderPrice()
+                orderItem.getOrderPrice().intValue()
         );
     }
 }

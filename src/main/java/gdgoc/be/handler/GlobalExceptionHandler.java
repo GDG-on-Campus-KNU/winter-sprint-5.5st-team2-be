@@ -4,7 +4,9 @@ import gdgoc.be.common.api.ApiResponse;
 import gdgoc.be.exception.BusinessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestController;
 
+@RestController
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
