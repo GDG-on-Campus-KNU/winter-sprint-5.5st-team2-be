@@ -7,9 +7,7 @@ import gdgoc.be.domain.OrderItem;
 import gdgoc.be.domain.Product;
 import gdgoc.be.domain.User;
 import gdgoc.be.dto.CalculationResult;
-import gdgoc.be.dto.order.OrderItemRequest;
-import gdgoc.be.dto.order.OrderRequest;
-import gdgoc.be.dto.order.OrderResponse;
+import gdgoc.be.dto.order.*;
 import gdgoc.be.dto.user.UserCouponResponse;
 import gdgoc.be.exception.BusinessErrorCode;
 import gdgoc.be.exception.BusinessException;
@@ -46,7 +44,18 @@ public class OrderService {
                 .map(OrderResponse::from);
     }
 
-    public OrderResponse createOrder(OrderRequest request) {
+    @Transactional(readOnly = true)
+    public List<OrderListResponse> getAllMyOrders() {
+        String email = SecurityUtil.getCurrentUserEmail();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
+
+        return orderRepository.findByUser_IdOrderByOrderDateDesc(user.getId()).stream()
+                .map(OrderListResponse::from) // 목록 전용 DTO 반환
+                .toList();
+    }
+
+    public OrderCreateResponse createOrder(OrderRequest request) {
 
         String email = SecurityUtil.getCurrentUserEmail();
         User user = userRepository.findByEmail(email)
@@ -69,11 +78,9 @@ public class OrderService {
         orderItems.forEach(order::addOrderItem);
 
         Order savedOrder = orderRepository.save(order);
-
-        // 주문 성공 시 장바구니 비우기 (해당 상품들만)
         clearOrderedItemsFromCart(user.getId(), request.orderItems());
 
-        return OrderResponse.from(savedOrder);
+        return OrderCreateResponse.from(savedOrder);
     }
 
     private List<OrderItem> createOrderItems(List<OrderItemRequest> itemRequests) {
@@ -133,14 +140,13 @@ public class OrderService {
             Product product = item.getProduct();
             product.addStock(item.getQuantity());
         }
-        order.cancel();
+        orderRepository.delete(order);
     }
     @Transactional
     public boolean confirmPayment(String paymentKey, Long orderId, Integer amount) {
 
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new BusinessException(BusinessErrorCode.ORDER_NOT_FOUND));
-
 
         if (order.getFinalAmount().intValue() != amount) {
             throw new BusinessException(BusinessErrorCode.BAD_REQUEST);

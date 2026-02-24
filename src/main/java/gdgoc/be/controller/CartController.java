@@ -1,6 +1,7 @@
 package gdgoc.be.controller;
 
 import gdgoc.be.common.api.ApiResponse;
+import gdgoc.be.dto.cart.CartBulkDeleteRequest;
 import gdgoc.be.dto.cart.CartRequest;
 import gdgoc.be.dto.cart.CartSummaryResponse;
 import gdgoc.be.dto.cart.CartUpdateRequest;
@@ -51,7 +52,7 @@ public class CartController {
     @PatchMapping("/{cartItemId}")
     public ApiResponse<Void> updateCart(
             @PathVariable Long cartItemId,
-            @Valid @RequestBody CartUpdateRequest request) { // DTO 사용
+            @Valid @RequestBody CartUpdateRequest request) {
 
         cartService.updateCartItem(cartItemId, request);
         return ApiResponse.success(null);
@@ -60,8 +61,9 @@ public class CartController {
     @Operation(summary = "장바구니 선택/전체 삭제", description = "ID 리스트를 보내면 선택 삭제, 보내지 않으면 전체 삭제를 수행합니다.",
             security = @SecurityRequirement(name = "bearerAuth"))
     @DeleteMapping
-    public ApiResponse<Void> deleteCartItems(@RequestBody(required = false) List<Long> cartItemIds) {
-        cartService.deleteCartItems(cartItemIds);
+    public ApiResponse<Void> deleteCartItems(@RequestBody(required = false) CartBulkDeleteRequest request) {
+        List<Long> ids = (request != null) ? request.cartItemIds() : null;
+        cartService.deleteCartItems(ids);
         return ApiResponse.success(null);
     }
 }
