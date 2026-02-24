@@ -1,6 +1,6 @@
 package gdgoc.be.controller;
 
-import gdgoc.be.common.ApiResponse;
+import gdgoc.be.common.api.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;

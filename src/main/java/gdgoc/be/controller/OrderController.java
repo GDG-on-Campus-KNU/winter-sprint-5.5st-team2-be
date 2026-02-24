@@ -1,6 +1,6 @@
 package gdgoc.be.controller;
 
-import gdgoc.be.common.ApiResponse;
+import gdgoc.be.common.api.ApiResponse;
 import gdgoc.be.dto.order.OrderConfirmRequest;
 import gdgoc.be.dto.order.OrderRequest;
 import gdgoc.be.dto.order.OrderResponse;
@@ -13,8 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Tag(name = "Order", description = "주문 관련 API")
 @RestController

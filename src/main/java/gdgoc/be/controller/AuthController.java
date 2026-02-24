@@ -1,6 +1,6 @@
 package gdgoc.be.controller;
 
-import gdgoc.be.common.ApiResponse;
+import gdgoc.be.common.api.ApiResponse;
 import gdgoc.be.dto.*;
 import gdgoc.be.dto.login.LoginRequest;
 import gdgoc.be.dto.login.LoginResponse;
