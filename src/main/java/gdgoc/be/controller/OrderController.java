@@ -1,18 +1,24 @@
 package gdgoc.be.controller;
 
+import gdgoc.be.Repository.OrderRepository;
+import gdgoc.be.Repository.UserRepository;
 import gdgoc.be.common.api.ApiResponse;
-import gdgoc.be.dto.order.OrderConfirmRequest;
-import gdgoc.be.dto.order.OrderRequest;
-import gdgoc.be.dto.order.OrderResponse;
+import gdgoc.be.common.util.SecurityUtil;
+import gdgoc.be.domain.User;
+import gdgoc.be.dto.order.*;
+import gdgoc.be.exception.BusinessErrorCode;
+import gdgoc.be.exception.BusinessException;
 import gdgoc.be.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "Order", description = "주문 관련 API")
 @RestController
@@ -21,20 +27,31 @@ import org.springframework.web.bind.annotation.*;
 public class OrderController {
 
     private final OrderService orderService;
-
+    private final UserRepository userRepository;
+    private final OrderRepository orderRepository;
 
     @Operation(summary = "주문 목록 조회", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping
-    public ApiResponse<Page<OrderResponse>> getOrders(Pageable pageable) {
-        // 명세서 공통 규칙: page, size, totalElements 등 처리를 위해 Page 반환
-        return ApiResponse.success(orderService.getMyOrders(pageable));
+    public ApiResponse<List<OrderListResponse>> getOrders(Pageable pageable) {
+        return ApiResponse.success(orderService.getAllMyOrders());
+    }
+
+    @Transactional(readOnly = true)
+    public List<OrderListResponse> getAllMyOrders() {
+        String email = SecurityUtil.getCurrentUserEmail();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
+
+        return orderRepository.findByUser_IdOrderByOrderDateDesc(user.getId()).stream()
+                .map(OrderListResponse::from) // 목록 전용 DTO 반환
+                .toList();
     }
 
     @Operation(summary = "주문 생성", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping
-    public ApiResponse<OrderResponse> createOrder(@Valid @RequestBody OrderRequest orderRequest) {
-        OrderResponse orderResponse = orderService.createOrder(orderRequest);
-        return ApiResponse.success(orderResponse);
+    public ApiResponse<OrderCreateResponse> createOrder(@Valid @RequestBody OrderRequest orderRequest) {
+        OrderCreateResponse response = orderService.createOrder(orderRequest);
+        return ApiResponse.success(response);
     }
 
 

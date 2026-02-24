@@ -80,27 +80,48 @@ public class CartService {
 
     public void updateCartItem(Long cartItemId, CartUpdateRequest request) {
 
-        String email = SecurityUtil.getCurrentUserEmail();
+        CartItem cartItem = findCartItemById(cartItemId);
+        validateCartItemOwnership(cartItem);
 
-        CartItem cartItem = cartItemRepository.findById(cartItemId)
+        updateSizeIfRequested(cartItem, request.selectedSize());
+        updateQuantityIfRequested(cartItem, request.quantity());
+    }
+
+    private CartItem findCartItemById(Long cartItemId) {
+        return cartItemRepository.findById(cartItemId)
                 .orElseThrow(() -> new BusinessException(BusinessErrorCode.CART_ITEM_NOT_FOUND));
+    }
 
-        if (!cartItem.getUser().getEmail().equals(email)) {
+    private void validateCartItemOwnership(CartItem cartItem) {
+        String currentEmail = SecurityUtil.getCurrentUserEmail();
+        if (!cartItem.getUser().getEmail().equals(currentEmail)) {
             throw new BusinessException(BusinessErrorCode.UNAUTHORIZED_CART_ACCESS);
         }
-
-        /**
-         * Size 업데이트 및 검증 기능 필요
-         */
-
-        cartItem.validateStock(request.quantity());
-        cartItem.updateQuantity(request.quantity());
     }
+
+    private void updateSizeIfRequested(CartItem cartItem, String newSize) {
+        if (newSize == null) return;
+
+        if (!cartItem.getProduct().getSizesOptions().contains(newSize)) {
+            throw new BusinessException(BusinessErrorCode.INVALID_CART);
+        }
+        cartItem.updateSelectedSize(newSize);
+    }
+
+    private void updateQuantityIfRequested(CartItem cartItem, Integer newQuantity) {
+        if (newQuantity == null) return; // Guard Clause
+
+        cartItem.validateStock(newQuantity);
+        cartItem.updateQuantity(newQuantity);
+    }
+
 
     private Product findProductById(Long productId) {
         return productRepository.findById(productId)
                 .orElseThrow(() -> new BusinessException(BusinessErrorCode.PRODUCT_NOT_FOUND));
     }
+
+
 
     public void deleteCartItems(List<Long> cartItemIds) {
 

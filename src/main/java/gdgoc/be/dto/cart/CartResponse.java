@@ -29,7 +29,7 @@ public record CartResponse(
                 .originalPrice(item.getProduct().getOriginalPrice())
                 .discountRate(item.getProduct().getDiscountRate())
                 .price(item.getProduct().getPrice())
-                .selectedSize("FREE")
+                .selectedSize(item.getSelectedSize())
                 .sizeOptions(item.getProduct().getSizesOptions())
                 .quantity(item.getQuantity())
                 .build();
