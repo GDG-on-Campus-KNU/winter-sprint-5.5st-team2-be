@@ -48,6 +48,7 @@ public class OrderService {
     }
 
     public OrderResponse createOrder(OrderRequest request) {
+
         String email = SecurityUtil.getCurrentUserEmail();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
@@ -66,8 +67,6 @@ public class OrderService {
                 request.couponId(),
                 request.address()
         );
-
-        // OrderItem들을 Order에 연결
         orderItems.forEach(order::addOrderItem);
 
         Order savedOrder = orderRepository.save(order);
@@ -85,7 +84,7 @@ public class OrderService {
                             .orElseThrow(() -> new BusinessException(BusinessErrorCode.PRODUCT_NOT_FOUND));
 
                     product.reduceStock(itemRequest.quantity());
-                    return OrderItem.createOrderItem(product, itemRequest.quantity());
+                    return OrderItem.createOrderItem(product, itemRequest.quantity(), itemRequest.selectedSize());
                 })
                 .collect(Collectors.toList());
     }
