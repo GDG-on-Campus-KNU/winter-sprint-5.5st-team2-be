@@ -21,6 +21,13 @@ public class OrderController {
 
     private final OrderService orderService;
 
+
+    @Operation(summary = "주문 목록 조회", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping
+    public ApiResponse<List<OrderResponse>> getOrders(@RequestParam(required = false) Long orderId) {
+        return ApiResponse.success(orderService.getMyOrders(orderId));
+    }
+
     @Operation(summary = "주문 생성", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping
     public ApiResponse<OrderResponse> createOrder(@Valid @RequestBody OrderRequest orderRequest) {
@@ -28,11 +35,6 @@ public class OrderController {
         return ApiResponse.success(orderResponse);
     }
 
-    @Operation(summary = "주문 목록 조회", security = @SecurityRequirement(name = "bearerAuth"))
-    @GetMapping
-    public ApiResponse<List<OrderResponse>> getOrders() {
-        return ApiResponse.success(orderService.getMyOrders());
-    }
 
     @Operation(summary = "주문 상세 조회", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/{id}")

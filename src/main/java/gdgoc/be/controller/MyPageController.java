@@ -25,8 +25,8 @@ public class MyPageController {
 
     @Operation(summary = "내 주문 목록 조회", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/orders")
-    public ApiResponse<List<OrderResponse>> getMyOrders() {
-        return ApiResponse.success(orderService.getMyOrders());
+    public ApiResponse<List<OrderResponse>> getMyOrders(Long orderId) {
+        return ApiResponse.success(orderService.getMyOrders(orderId));
     }
 
     @Operation(summary = "내 쿠폰함 조회", security = @SecurityRequirement(name = "bearerAuth"))

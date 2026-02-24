@@ -12,14 +12,14 @@ import java.util.stream.Collectors;
 public record OrderResponse(
         Long orderId,
         String representativeItem,
-        LocalDateTime orderDate,
+        LocalDateTime createdAt,
         String orderStatus,
-        String address,
+        String paymentStatus,
+        String shippingAddress,
         List<OrderItemResponse> orderItems,
         BigDecimal totalPrice,
         BigDecimal totalDiscount,
         BigDecimal shippingFee,
-        BigDecimal finalPrice,
         Long couponId
 ) {
 
@@ -33,13 +33,18 @@ public record OrderResponse(
             repName += " 외 " + (itemNum.size() - 1) + "건";
         }
 
-        return new OrderResponse(
-                order.getId(),
-                repName,
-                order.getOrderDate(),
-                order.getStatus().name(),
-                order.getFinalAmount(),
-                itemNum
-        );
+        return OrderResponse.builder()
+                .orderId(order.getId())
+                .representativeItem(repName)
+                .createdAt(order.getOrderDate())
+                .orderStatus(order.getStatus().name())
+                .paymentStatus(order.getPaymentStatus().name())
+                .shippingAddress(order.getAddress())
+                .orderItems(itemResponses)
+                .totalPrice(order.getFinalAmount())
+                .totalDiscount(order.getDiscountAmount())
+                .shippingFee(order.getDeliveryFee())
+                .couponId(order.getCouponId())
+                .build();
     }
 }

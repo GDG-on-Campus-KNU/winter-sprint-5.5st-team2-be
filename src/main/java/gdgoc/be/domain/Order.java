@@ -46,6 +46,10 @@ public class Order {
     @Column(nullable = false, length = 50)
     private OrderStatus status; // PENDING, COMPLETED, CANCELLED
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 50)
+    private PaymentStatus paymentStatus;
+
     @Column(length = 255)
     private String address;
 
@@ -61,6 +65,7 @@ public class Order {
     public enum OrderStatus {
         PENDING, COMPLETED, CANCELLED
     }
+    public enum PaymentStatus { PAID, UNPAID, CANCELLED }
 
     @Builder
     private Order(User user, BigDecimal totalAmount, BigDecimal discountAmount,
@@ -73,6 +78,7 @@ public class Order {
         this.couponId = couponId;
         this.address = address;
         this.status = OrderStatus.PENDING;
+        this.paymentStatus = PaymentStatus.PAID;
     }
 
     public static Order createOrder(User user, CalculationResult result, Long couponId, String address) {

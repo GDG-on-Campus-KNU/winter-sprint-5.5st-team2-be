@@ -32,19 +32,21 @@ public class OrderService {
     private final CartItemRepository cartItemRepository;
 
     @Transactional(readOnly = true)
-    public List<OrderResponse> getMyOrders(Integer months) {
+    public List<OrderResponse> getMyOrders(Long orderId) {
         String email = SecurityUtil.getCurrentUserEmail();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
 
-        List<Order> orders;
-        if (months != null && months > 0) {
-            LocalDateTime startDate = LocalDateTime.now().minusMonths(months);
-            orders = orderRepository.findByUserIdAndOrderDateAfterOrderByOrderDateDesc(user.getId(), startDate);
-        } else {
-            orders = orderRepository.findByUserIdOrderByOrderDateDesc(user.getId());
+        if (orderId != null) {
+            return orderRepository.findById(orderId)
+                    .filter(o -> o.getUser().getId().equals(user.getId()))
+                    .map(o -> List.of(OrderResponse.from(o)))
+                    .orElse(List.of());
         }
-        return orders.stream().map(OrderResponse::from).toList();
+
+        return orderRepository.findByUser_IdOrderByOrderDateDesc(user.getId()).stream()
+                .map(OrderResponse::from)
+                .collect(Collectors.toList());
     }
 
     public OrderResponse createOrder(OrderRequest request) {
@@ -65,7 +67,7 @@ public class OrderService {
                 user,
                 calculation,
                 request.couponId(),
-                request.address()
+                request.shippingAddress()
         );
         orderItems.forEach(order::addOrderItem);
 

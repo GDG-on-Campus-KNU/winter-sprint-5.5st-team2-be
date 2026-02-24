@@ -15,6 +15,6 @@ public record OrderRequest(
     Long couponId,
 
     @Nullable
-    String address
+    String shippingAddress
 ) {
 }
