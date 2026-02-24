@@ -17,9 +17,9 @@ public record OrderResponse(
         String paymentStatus,
         String shippingAddress,
         List<OrderItemResponse> items,
-        BigDecimal totalPrice,
-        BigDecimal totalDiscount,
-        BigDecimal shippingFee,
+        Integer totalPrice,
+        Integer totalDiscount,
+        Integer shippingFee,
         Long couponId
 ) {
 
@@ -41,9 +41,9 @@ public record OrderResponse(
                 .paymentStatus(order.getPaymentStatus().name())
                 .shippingAddress(order.getAddress())
                 .items(itemResponses)
-                .totalPrice(order.getFinalAmount())
-                .totalDiscount(order.getDiscountAmount())
-                .shippingFee(order.getDeliveryFee())
+                .totalPrice(order.getFinalAmount().intValue())
+                .totalDiscount(order.getDiscountAmount().intValue())
+                .shippingFee(order.getDeliveryFee().intValue())
                 .couponId(order.getCouponId())
                 .build();
     }

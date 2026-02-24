@@ -1,8 +1,14 @@
 package gdgoc.be.controller;
 
+import gdgoc.be.Repository.OrderRepository;
+import gdgoc.be.Repository.UserRepository;
 import gdgoc.be.common.ApiResponse;
+import gdgoc.be.common.util.SecurityUtil;
+import gdgoc.be.domain.User;
 import gdgoc.be.dto.order.OrderResponse;
 import gdgoc.be.dto.user.UserCouponResponse;
+import gdgoc.be.exception.BusinessErrorCode;
+import gdgoc.be.exception.BusinessException;
 import gdgoc.be.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -13,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.awt.print.Pageable;
 import java.util.List;
 
 @Tag(name = "MyPage", description = "마이페이지 관련 API")
@@ -22,11 +29,18 @@ import java.util.List;
 public class MyPageController {
 
     private final OrderService orderService;
+    private final UserRepository userRepository;
+    private final OrderRepository orderRepository;
 
     @Operation(summary = "내 주문 목록 조회", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/orders")
-    public ApiResponse<List<OrderResponse>> getMyOrders(Long orderId) {
-        return ApiResponse.success(orderService.getMyOrders(orderId));
+    public ApiResponse<List<OrderResponse>> getMyOrders(Pageable pageable) {
+        String email = SecurityUtil.getCurrentUserEmail();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
+
+        return orderRepository.findByUserIdOrderByOrderDateDesc(user.getId(), pageable)
+                .map(OrderResponse::from);
     }
 
     @Operation(summary = "내 쿠폰함 조회", security = @SecurityRequirement(name = "bearerAuth"))
