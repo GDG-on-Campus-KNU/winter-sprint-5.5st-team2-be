@@ -55,7 +55,7 @@ public class OrderService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
 
-        List<OrderItem> orderItems = createOrderItems(request.items());
+        List<OrderItem> orderItems = createOrderItems(request.orderItems());
 
         CalculationResult calculation = orderCalculator.calculate(
                 orderItems,
@@ -74,7 +74,7 @@ public class OrderService {
         Order savedOrder = orderRepository.save(order);
 
         // 주문 성공 시 장바구니 비우기 (해당 상품들만)
-        clearOrderedItemsFromCart(user.getId(), request.items());
+        clearOrderedItemsFromCart(user.getId(), request.orderItems());
 
         return OrderResponse.from(savedOrder);
     }
@@ -82,7 +82,7 @@ public class OrderService {
     private List<OrderItem> createOrderItems(List<OrderItemRequest> itemRequests) {
         return itemRequests.stream()
                 .map(itemRequest -> {
-                    Product product = productRepository.findById(itemRequest.productId())
+                    Product product = productRepository.findById(itemRequest.menuId())
                             .orElseThrow(() -> new BusinessException(BusinessErrorCode.PRODUCT_NOT_FOUND));
 
                     product.reduceStock(itemRequest.quantity());
@@ -93,7 +93,7 @@ public class OrderService {
 
     private void clearOrderedItemsFromCart(Long userId, List<OrderItemRequest> items) {
         for (OrderItemRequest item : items) {
-            cartItemRepository.findByUserIdAndProductId(userId, item.productId())
+            cartItemRepository.findByUserIdAndProductId(userId, item.menuId())
                     .ifPresent(cartItemRepository::delete);
         }
     }
@@ -118,4 +118,31 @@ public class OrderService {
                 .map(UserCouponResponse::from)
                 .collect(Collectors.toList());
     }
+
+    public void cancelOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new BusinessException(BusinessErrorCode.ORDER_NOT_FOUND));
+
+        String email = SecurityUtil.getCurrentUserEmail();
+        if (!order.getUser().getEmail().equals(email)) {
+            throw new BusinessException(BusinessErrorCode.FORBIDDEN);
+        }
+
+        if (order.getStatus() == Order.OrderStatus.CANCELLED) {
+            throw new BusinessException(BusinessErrorCode.FORBIDDEN);
+        }
+
+        for (OrderItem item : order.getOrderItems()) {
+            Product product = item.getProduct();
+            product.addStock(item.getQuantity());
+        }
+        order.cancel();
+    }
+    @Transactional
+    public boolean confirmPayment(String paymentKey, Long orderId, Integer amount) {
+        // PG사 API 호출 로직 (토스페이먼츠 등 연동 시)
+        // 성공 시 주문 상태를 COMPLETED로 변경
+        return true;
+    }
+
 }

@@ -1,6 +1,8 @@
 package gdgoc.be.domain;
 
 import gdgoc.be.dto.CalculationResult;
+import gdgoc.be.exception.BusinessErrorCode;
+import gdgoc.be.exception.BusinessException;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -96,5 +98,13 @@ public class Order {
     public void addOrderItem(OrderItem orderItem) {
         orderItems.add(orderItem);
         orderItem.setOrder(this);
+    }
+
+    public void cancel() {
+        if (this.status == OrderStatus.CANCELLED) {
+            throw new BusinessException(BusinessErrorCode.BAD_REQUEST);
+        }
+        this.status = OrderStatus.CANCELLED;
+        this.paymentStatus = PaymentStatus.CANCELLED;
     }
 }

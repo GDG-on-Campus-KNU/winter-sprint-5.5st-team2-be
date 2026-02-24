@@ -41,4 +41,22 @@ public class OrderController {
     public ApiResponse<OrderResponse> getOrderDetails(@PathVariable("id") Long orderId) {
         return ApiResponse.success(orderService.getOrderDetails(orderId));
     }
+
+    @Operation(summary = "주문 취소", security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping("/{orderId}/cancel")
+    public ApiResponse<Void> cancelOrder(@PathVariable Long orderId) {
+        orderService.cancelOrder(orderId);
+        return ApiResponse.success(null);
+    }
+
+    @Operation(summary = "결제 승인", description = "PG 연동 후 최종 결제를 확정합니다.")
+    @PostMapping("/payments/confirm")
+    public ApiResponse<Boolean> confirmPayment(@RequestBody Map<String, Object> paymentData) {
+        // 명세서 규격: paymentKey, orderId, amount
+        String key = (String) paymentData.get("paymentKey");
+        Long id = Long.valueOf(paymentData.get("orderId").toString());
+        Integer amt = (Integer) paymentData.get("amount");
+
+        return ApiResponse.success(orderService.confirmPayment(key, id, amt));
+    }
 }

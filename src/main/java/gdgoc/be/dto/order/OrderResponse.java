@@ -16,7 +16,7 @@ public record OrderResponse(
         String orderStatus,
         String paymentStatus,
         String shippingAddress,
-        List<OrderItemResponse> orderItems,
+        List<OrderItemResponse> items,
         BigDecimal totalPrice,
         BigDecimal totalDiscount,
         BigDecimal shippingFee,
@@ -40,7 +40,7 @@ public record OrderResponse(
                 .orderStatus(order.getStatus().name())
                 .paymentStatus(order.getPaymentStatus().name())
                 .shippingAddress(order.getAddress())
-                .orderItems(itemResponses)
+                .items(itemResponses)
                 .totalPrice(order.getFinalAmount())
                 .totalDiscount(order.getDiscountAmount())
                 .shippingFee(order.getDeliveryFee())
