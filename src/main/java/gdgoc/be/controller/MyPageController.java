@@ -25,8 +25,6 @@ import java.util.List;
 public class MyPageController {
 
     private final OrderService orderService;
-    private final UserRepository userRepository;
-    private final OrderRepository orderRepository;
 
     @Operation(summary = "내 주문 목록 조회", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/orders")

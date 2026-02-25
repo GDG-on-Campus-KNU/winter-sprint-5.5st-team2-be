@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -101,7 +100,7 @@ public class OrderService {
                     product.reduceStock(itemRequest.quantity());
                     return OrderItem.createOrderItem(product, itemRequest.quantity(), itemRequest.selectedSize(), userCoupon);
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private void clearOrderedItemsFromCart(Long userId, List<OrderItemRequest> items) {
@@ -129,7 +128,7 @@ public class OrderService {
         String email = SecurityUtil.getCurrentUserEmail();
         return userCouponRepository.findByUserEmailAndStatus(email, UserCoupon.CouponStatus.ACTIVE).stream()
                 .map(UserCouponResponse::from)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -152,17 +151,26 @@ public class OrderService {
                     
                     return OrderItem.createOrderItem(product, itemRequest.quantity(), itemRequest.selectedSize(), userCoupon);
                 })
-                .collect(Collectors.toList());
+                .toList();
 
         // 2. 계산 모듈 사용
         CalculationResult calculation = orderCalculator.calculate(orderItems);
+
+        String appliedCouponNames = orderItems.stream()
+                .map(OrderItem::getAppliedCoupon)
+                .filter(java.util.Objects::nonNull)
+                .map(uc -> uc.getCoupon().getName())
+                .distinct()
+                .collect(java.util.stream.Collectors.joining(", "));
+
+        String message = appliedCouponNames.isEmpty() ? "쿠폰이 적용되지 않았습니다." : appliedCouponNames + " 적용됨";
 
         return new gdgoc.be.dto.order.CouponApplyResponse(
                 calculation.totalAmount(),
                 calculation.discountAmount(),
                 calculation.shippingFee(),
                 calculation.finalAmount(),
-                "복수 쿠폰 적용됨"
+                message
         );
     }
 

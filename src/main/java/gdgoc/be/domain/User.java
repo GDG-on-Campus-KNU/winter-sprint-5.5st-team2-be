@@ -51,8 +51,33 @@ public class User {
     @Column(length = 512)
     private String refreshToken;
 
-    public void updateRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
+    public void updateRefreshToken(String rawToken) {
+        if (rawToken == null) {
+            this.refreshToken = null;
+            return;
+        }
+        this.refreshToken = hashToken(rawToken);
+    }
+
+    public boolean isValidRefreshToken(String rawToken) {
+        if (rawToken == null || this.refreshToken == null) return false;
+        return this.refreshToken.equals(hashToken(rawToken));
+    }
+
+    private String hashToken(String token) {
+        try {
+            java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(token.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (java.security.NoSuchAlgorithmException e) {
+            throw new RuntimeException("토큰 해싱 중 오류가 발생했습니다.", e);
+        }
     }
 
     public User(String name, String email, String password, Role role, String phone) {

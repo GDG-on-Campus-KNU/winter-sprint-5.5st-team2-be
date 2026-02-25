@@ -63,7 +63,6 @@ public class UserCoupon {
         }
         // 2. 실시간 만료일 체크 (상태가 아직 ACTIVE여도 시간이 지났을 수 있으므로)
         if (this.coupon.getExpiryDate() != null && this.coupon.getExpiryDate().isBefore(LocalDateTime.now())) {
-            this.expire(); // 상태 업데이트
             throw new BusinessException(BusinessErrorCode.COUPON_EXPIRED);
         }
     }
