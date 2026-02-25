@@ -110,7 +110,7 @@ public class AuthService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
 
-        if (user.getRefreshToken() == null || !user.getRefreshToken().equals(refreshToken)) {
+        if (!user.isValidRefreshToken(refreshToken)) {
             throw new BusinessException(BusinessErrorCode.AUTH_INVALID);
         }
 
