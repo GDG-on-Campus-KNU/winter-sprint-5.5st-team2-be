@@ -29,9 +29,6 @@ public class Coupon {
     @Column(name = "discount_value", nullable = false, precision = 19, scale = 2)
     private BigDecimal discountValue;
 
-    @Column(name = "min_order_amount", nullable = false, precision = 19, scale = 2)
-    private BigDecimal minOrderAmount = BigDecimal.ZERO;
-
     @Column(name = "expiry_date")
     private LocalDateTime expiryDate;
 
@@ -41,16 +38,15 @@ public class Coupon {
 
     @Builder
     private Coupon(String name, DiscountType discountType, BigDecimal discountValue,
-                   BigDecimal minOrderAmount, LocalDateTime expiryDate) {
+                   LocalDateTime expiryDate) {
         this.name = name;
         this.discountType = discountType;
         this.discountValue = discountValue;
-        this.minOrderAmount = (minOrderAmount != null) ? minOrderAmount : BigDecimal.ZERO;
         this.expiryDate = expiryDate;
     }
 
     public static Coupon createCoupon(String name, DiscountType type, BigDecimal value,
-                                      BigDecimal minAmount, LocalDateTime expiry) {
+                                      LocalDateTime expiry) {
 
         if (value.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("할인 값은 0보다 커야 합니다.");
@@ -60,16 +56,11 @@ public class Coupon {
                 .name(name)
                 .discountType(type)
                 .discountValue(value)
-                .minOrderAmount(minAmount)
                 .expiryDate(expiry)
                 .build();
     }
 
     public BigDecimal calculateDiscount(BigDecimal totalAmount) {
-
-        if (totalAmount.compareTo(this.minOrderAmount) < 0) {
-            return BigDecimal.ZERO;
-        }
 
         BigDecimal discount = (this.discountType == DiscountType.PERCENT)
                 ? calculatePercentDiscount(totalAmount)

@@ -25,40 +25,57 @@ public class UserCoupon {
     @JoinColumn(name = "coupon_id", nullable = false)
     private Coupon coupon;
 
-    @Column(name = "is_used", nullable = false)
-    private Boolean isUsed;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 20)
+    private CouponStatus status;
+
+    public enum CouponStatus {
+        ACTIVE, USED, EXPIRED
+    }
 
     @Builder
-    private UserCoupon(Long id, User user, Coupon coupon, Boolean isUsed) {
+    private UserCoupon(Long id, User user, Coupon coupon, CouponStatus status) {
         this.id = id;
         this.user = user;
         this.coupon = coupon;
-        this.isUsed = isUsed;
+        this.status = status;
     }
 
     public static UserCoupon createUserCoupon(User user, Coupon coupon) {
         return UserCoupon.builder()
                 .user(user)
                 .coupon(coupon)
-                .isUsed(false) // 초기 발급 시에는 사용하지 않은 상태로 고정
+                .status(CouponStatus.ACTIVE)
                 .build();
     }
 
     public boolean isUsed() {
-        return this.isUsed;
+        return this.status == CouponStatus.USED;
     }
 
     public void validate() {
-        // 1. 사용 여부 체크
-        if (this.isUsed) {
-            throw new BusinessException(BusinessErrorCode.COUPON_ALREADY_USED); // 기존 RuntimeException 대신 커스텀 예외 권장
+        // 1. 상태 체크
+        if (this.status == CouponStatus.USED) {
+            throw new BusinessException(BusinessErrorCode.COUPON_ALREADY_USED);
         }
-        // 2. 만료일 체크 (Coupon 엔티티 정보 활용)
+        if (this.status == CouponStatus.EXPIRED) {
+            throw new BusinessException(BusinessErrorCode.COUPON_EXPIRED);
+        }
+        // 2. 실시간 만료일 체크 (상태가 아직 ACTIVE여도 시간이 지났을 수 있으므로)
         if (this.coupon.getExpiryDate() != null && this.coupon.getExpiryDate().isBefore(LocalDateTime.now())) {
+            this.expire(); // 상태 업데이트
             throw new BusinessException(BusinessErrorCode.COUPON_EXPIRED);
         }
     }
+
     public void use() {
-        this.isUsed = true;
+        if (this.status != CouponStatus.ACTIVE) {
+            throw new BusinessException(BusinessErrorCode.BAD_REQUEST);
+        }
+        this.status = CouponStatus.USED;
+    }
+
+    public void expire() {
+        this.status = CouponStatus.EXPIRED;
     }
 }

@@ -81,6 +81,9 @@ public class AuthService {
         String accessToken = jwtTokenProvider.createToken(user.getEmail(), user.getRole());
         String refreshToken = jwtTokenProvider.createRefreshToken(user.getEmail(), user.getRole());
 
+        // 리프레시 토큰 DB 저장
+        user.updateRefreshToken(refreshToken);
+
         return LoginResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
@@ -91,6 +94,35 @@ public class AuthService {
                         .email(user.getEmail())
                         .build())
                 .build();
+    }
+
+    @Transactional
+    public String refresh(String refreshToken) {
+        // 1. 토큰 유효성 검증
+        if (!jwtTokenProvider.validateToken(refreshToken)) {
+            throw new BusinessException(BusinessErrorCode.AUTH_INVALID);
+        }
+
+        // 2. 토큰에서 이메일 추출
+        String email = jwtTokenProvider.getEmail(refreshToken);
+
+        // 3. DB에 저장된 토큰과 일치하는지 확인
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
+
+        if (user.getRefreshToken() == null || !user.getRefreshToken().equals(refreshToken)) {
+            throw new BusinessException(BusinessErrorCode.AUTH_INVALID);
+        }
+
+        // 4. 새로운 액세스 토큰 발급
+        return jwtTokenProvider.createToken(user.getEmail(), user.getRole());
+    }
+
+    @Transactional
+    public void logout(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
+        user.updateRefreshToken(null);
     }
 
     public UserResponse getMe(String email) {

@@ -58,7 +58,7 @@ class AuthServiceTest {
         LoginResponse response = authService.login(request);
 
         // then
-        assertThat(response.getAccessToken()).isEqualTo("mock-token");
+        assertThat(response.accessToken()).isEqualTo("mock-token");
     }
 
     @Test
@@ -95,5 +95,61 @@ class AuthServiceTest {
         assertThatThrownBy(() -> authService.login(request))
                 .isInstanceOf(BusinessException.class)
                 .hasFieldOrPropertyWithValue("errorCode", BusinessErrorCode.INVALID_LOGIN_ATTEMPT);
+    }
+
+    @Test
+    @DisplayName("토큰 갱신 성공")
+    void refresh_success() {
+        // given
+        String refreshToken = "valid-refresh-token";
+        String email = "test@example.com";
+        User user = User.builder()
+                .email(email)
+                .role(Role.USER)
+                .build();
+        user.updateRefreshToken(refreshToken);
+
+        given(jwtTokenProvider.validateToken(refreshToken)).willReturn(true);
+        given(jwtTokenProvider.getEmail(refreshToken)).willReturn(email);
+        given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
+        given(jwtTokenProvider.createToken(email, Role.USER)).willReturn("new-access-token");
+
+        // when
+        String newAccessToken = authService.refresh(refreshToken);
+
+        // then
+        assertThat(newAccessToken).isEqualTo("new-access-token");
+    }
+
+    @Test
+    @DisplayName("토큰 갱신 실패 - 유효하지 않은 토큰")
+    void refresh_fail_invalid_token() {
+        // given
+        String refreshToken = "invalid-token";
+        given(jwtTokenProvider.validateToken(refreshToken)).willReturn(false);
+
+        // when & then
+        assertThatThrownBy(() -> authService.refresh(refreshToken))
+                .isInstanceOf(BusinessException.class)
+                .hasFieldOrPropertyWithValue("errorCode", BusinessErrorCode.AUTH_INVALID);
+    }
+
+    @Test
+    @DisplayName("로그아웃 성공")
+    void logout_success() {
+        // given
+        String email = "test@example.com";
+        User user = User.builder()
+                .email(email)
+                .build();
+        user.updateRefreshToken("some-refresh-token");
+
+        given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
+
+        // when
+        authService.logout(email);
+
+        // then
+        assertThat(user.getRefreshToken()).isNull();
     }
 }

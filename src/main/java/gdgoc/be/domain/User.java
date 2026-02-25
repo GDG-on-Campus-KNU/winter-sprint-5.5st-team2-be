@@ -48,6 +48,13 @@ public class User {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(length = 512)
+    private String refreshToken;
+
+    public void updateRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
     public User(String name, String email, String password, Role role, String phone) {
         this.name = name;
         this.email = email;

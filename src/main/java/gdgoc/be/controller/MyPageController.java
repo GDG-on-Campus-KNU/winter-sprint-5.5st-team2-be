@@ -4,7 +4,6 @@ import gdgoc.be.Repository.OrderRepository;
 import gdgoc.be.Repository.UserRepository;
 import gdgoc.be.common.api.ApiResponse;
 import gdgoc.be.dto.order.OrderResponse;
-import gdgoc.be.dto.user.UserCouponResponse;
 import gdgoc.be.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -33,12 +32,6 @@ public class MyPageController {
     @GetMapping("/orders")
     public ApiResponse<Page<OrderResponse>> getMyOrders(Pageable pageable) {
         return ApiResponse.success(orderService.getMyOrders(pageable));
-    }
-
-    @Operation(summary = "내 쿠폰함 조회", security = @SecurityRequirement(name = "bearerAuth"))
-    @GetMapping("/coupons")
-    public ApiResponse<List<UserCouponResponse>> getMyCoupons() {
-        return ApiResponse.success(orderService.getMyCoupons());
     }
 
     @Operation(summary = "내 주문 상세 조회", security = @SecurityRequirement(name = "bearerAuth"))
