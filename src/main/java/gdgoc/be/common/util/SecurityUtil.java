@@ -13,8 +13,8 @@ public class SecurityUtil {
             throw new BusinessException(BusinessErrorCode.AUTH_REQUIRED);
         }
 
-        if (authentication.getPrincipal() instanceof UserDetails userDetails) {
-            return userDetails.getUsername();
+        if (authentication.getPrincipal() instanceof UserDetails) {
+            return ((UserDetails) authentication.getPrincipal()).getUsername();
         }
         return authentication.getPrincipal().toString();
     }

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +37,7 @@ public class ProductService {
         
         return products.stream()
                 .map(ProductResponse::from)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     public ProductDetailResponse findProductDetail(Long id) {

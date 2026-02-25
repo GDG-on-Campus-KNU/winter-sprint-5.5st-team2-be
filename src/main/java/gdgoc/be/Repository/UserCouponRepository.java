@@ -18,10 +18,4 @@ public interface UserCouponRepository extends JpaRepository<UserCoupon, Long> {
 
     Optional<UserCoupon> findByIdAndUserEmail(Long id, String email);
     Optional<UserCoupon> findByIdAndUserId(Long id, Long userId);
-
-    @org.springframework.data.jpa.repository.Modifying
-    @org.springframework.data.jpa.repository.Query("UPDATE UserCoupon uc SET uc.status = 'EXPIRED' " +
-            "WHERE uc.status = 'ACTIVE' " +
-            "AND uc.coupon.expiryDate < :now")
-    int expireAllActiveCouponsBefore(@org.springframework.data.repository.query.Param("now") java.time.LocalDateTime now);
 }
