@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdminController {
 
     @Operation(summary = "관리자 대시보드 조회", security = @SecurityRequirement(name = "bearerAuth"))
-    @GetMapping("/**")
+    @GetMapping("/dashboard")
     public ApiResponse<String> getAdminStats() {
         return ApiResponse.success("관리자 전용 데이터에 접근 성공했습니다.");
     }
