@@ -16,6 +16,6 @@ public class SecurityUtil {
         if (authentication.getPrincipal() instanceof UserDetails userDetails) {
             return userDetails.getUsername();
         }
-        return authentication.getPrincipal().toString();
+        throw new BusinessException(BusinessErrorCode.AUTH_REQUIRED);
     }
 }

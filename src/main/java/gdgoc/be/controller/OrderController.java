@@ -1,13 +1,7 @@
 package gdgoc.be.controller;
 
-import gdgoc.be.Repository.OrderRepository;
-import gdgoc.be.Repository.UserRepository;
 import gdgoc.be.common.api.ApiResponse;
-import gdgoc.be.common.util.SecurityUtil;
-import gdgoc.be.domain.User;
 import gdgoc.be.dto.order.*;
-import gdgoc.be.exception.BusinessErrorCode;
-import gdgoc.be.exception.BusinessException;
 import gdgoc.be.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -15,7 +9,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,24 +20,11 @@ import java.util.List;
 public class OrderController {
 
     private final OrderService orderService;
-    private final UserRepository userRepository;
-    private final OrderRepository orderRepository;
 
     @Operation(summary = "주문 목록 조회", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping
     public ApiResponse<List<OrderListResponse>> getOrders(Pageable pageable) {
         return ApiResponse.success(orderService.getAllMyOrders());
-    }
-
-    @Transactional(readOnly = true)
-    public List<OrderListResponse> getAllMyOrders() {
-        String email = SecurityUtil.getCurrentUserEmail();
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
-
-        return orderRepository.findByUser_IdOrderByOrderDateDesc(user.getId()).stream()
-                .map(OrderListResponse::from) // 목록 전용 DTO 반환
-                .toList();
     }
 
     @Operation(summary = "주문 생성", security = @SecurityRequirement(name = "bearerAuth"))
@@ -53,7 +33,6 @@ public class OrderController {
         OrderCreateResponse response = orderService.createOrder(orderRequest);
         return ApiResponse.success(response);
     }
-
 
     @Operation(summary = "주문 상세 조회", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/{id}")

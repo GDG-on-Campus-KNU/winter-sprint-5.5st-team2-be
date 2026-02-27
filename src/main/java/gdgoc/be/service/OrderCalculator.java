@@ -1,23 +1,17 @@
 package gdgoc.be.service;
 
-import gdgoc.be.Repository.UserCouponRepository;
-import gdgoc.be.domain.Coupon;
 import gdgoc.be.domain.OrderItem;
 import gdgoc.be.domain.UserCoupon;
 import gdgoc.be.dto.CalculationResult;
 import gdgoc.be.exception.BusinessErrorCode;
 import gdgoc.be.exception.BusinessException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 @Component
-@RequiredArgsConstructor
 public class OrderCalculator {
-
-    private final UserCouponRepository userCouponRepository;
 
     private static final BigDecimal FREE_SHIPPING_THRESHOLD = BigDecimal.valueOf(30000);
     private static final BigDecimal DEFAULT_SHIPPING_FEE = BigDecimal.valueOf(3000);
@@ -38,7 +32,7 @@ public class OrderCalculator {
         BigDecimal shippingFee = calculateShippingFee(amountAfterDiscount);
         BigDecimal finalAmount = amountAfterDiscount.add(shippingFee);
 
-        return CalculationResult.of(totalOriginalAmount, totalDiscountAmount, shippingFee, finalAmount, null);
+        return CalculationResult.of(totalOriginalAmount, totalDiscountAmount, shippingFee, finalAmount);
     }
 
     private void validateDuplicateCoupons(List<OrderItem> items) {
