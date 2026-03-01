@@ -8,6 +8,7 @@ import gdgoc.be.dto.product.ProductResponse;
 import gdgoc.be.exception.BusinessErrorCode;
 import gdgoc.be.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,19 +22,26 @@ public class ProductService {
     private final ProductRepository productRepository;
 
     public List<ProductResponse> findAllProducts(String categoryStr, String search, String sort) {
+        return findAllProducts(categoryStr, search, sort, null);
+    }
+
+    public List<ProductResponse> findAllProducts(String categoryStr, String search, String sort, Integer limit) {
         Category category = null;
         if (categoryStr != null && !categoryStr.isEmpty()) {
             try {
                 category = Category.valueOf(categoryStr.toUpperCase());
             } catch (IllegalArgumentException e) {
-                // Ignore or handle invalid category
+                // Ignore invalid category
             }
         }
 
-        List<Product> products = productRepository.findAllWithFilters(category, search);
+        List<Product> products;
+        if (limit != null && limit > 0) {
+            products = productRepository.findAllWithFiltersOrderByCreatedAtDesc(category, search, PageRequest.of(0, limit));
+        } else {
+            products = productRepository.findAllWithFiltersOrderByCreatedAtDesc(category, search, PageRequest.of(0, Integer.MAX_VALUE));
+        }
 
-        // TODO: Implement sorting logic based on the 'sort' parameter if needed
-        
         return products.stream()
                 .map(ProductResponse::from)
                 .toList();

@@ -43,6 +43,7 @@ public class Order {
     @Column(name = "coupon_id")
     private Long couponId;
 
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     private OrderStatus status; // PENDING, COMPLETED, CANCELLED
