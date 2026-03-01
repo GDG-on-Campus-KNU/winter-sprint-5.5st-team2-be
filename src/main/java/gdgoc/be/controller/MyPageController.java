@@ -1,7 +1,5 @@
 package gdgoc.be.controller;
 
-import gdgoc.be.Repository.OrderRepository;
-import gdgoc.be.Repository.UserRepository;
 import gdgoc.be.common.api.ApiResponse;
 import gdgoc.be.dto.order.OrderResponse;
 import gdgoc.be.service.OrderService;
@@ -15,8 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @Tag(name = "MyPage", description = "마이페이지 관련 API")
 @RestController

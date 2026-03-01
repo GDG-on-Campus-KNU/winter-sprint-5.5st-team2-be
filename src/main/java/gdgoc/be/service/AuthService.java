@@ -68,6 +68,7 @@ public class AuthService {
         userRepository.save(admin);
     }
 
+    @Transactional
     public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new BusinessException(BusinessErrorCode.INVALID_LOGIN_ATTEMPT));

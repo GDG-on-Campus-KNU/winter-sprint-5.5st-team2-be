@@ -5,6 +5,7 @@ import gdgoc.be.exception.BusinessException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -56,19 +57,19 @@ public class Product {
     @ElementCollection
     @CollectionTable(name = "product_sizes", joinColumns = @JoinColumn(name = "product_id"))
     @Column(name = "size_option")
-    @org.hibernate.annotations.BatchSize(size = 20)
+    @BatchSize(size = 20)
     private List<String> sizesOptions = new ArrayList<>();
 
     @ElementCollection
     @CollectionTable(name = "product_detail_images", joinColumns = @JoinColumn(name = "product_id"))
     @Column(name = "image_url")
-    @org.hibernate.annotations.BatchSize(size = 20)
+    @BatchSize(size = 20)
     private List<String> detailImages = new ArrayList<>();
 
     @ElementCollection
     @CollectionTable(name = "product_gallery_images", joinColumns = @JoinColumn(name = "product_id"))
     @Column(name = "image_url")
-    @org.hibernate.annotations.BatchSize(size = 20)
+    @BatchSize(size = 20)
     private List<String> galleryImages = new ArrayList<>();
 
     private Double rating;
@@ -130,6 +131,7 @@ public class Product {
             this.isAvailable = false;
         }
     }
+
 
     public void addStock(int quantity) {
         this.stock += quantity;
