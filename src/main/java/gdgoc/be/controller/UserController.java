@@ -2,8 +2,10 @@ package gdgoc.be.controller;
 
 import gdgoc.be.common.api.ApiResponse;
 import gdgoc.be.common.util.SecurityUtil;
+import gdgoc.be.dto.user.MyPageResponse;
 import gdgoc.be.dto.user.UserResponse;
 import gdgoc.be.service.AuthService;
+import gdgoc.be.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,13 +21,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final AuthService authService;
+    private final UserService userService;
 
-    @Operation(summary = "내 정보 조회", description = "JWT 토큰을 통해 현재 로그인한 사용자의 정보를 조회합니다.", 
+    @Operation(summary = "마이페이지 기본 정보 조회", description = "로그인한 사용자의 role, 쿠폰 수, 주문 수, 가입일을 조회합니다.",
                security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/me")
-        public ApiResponse<UserResponse> getMe() {
+    public ApiResponse<MyPageResponse> getMe() {
         String email = SecurityUtil.getCurrentUserEmail();
-        UserResponse response = authService.getMe(email);
-        return ApiResponse.success(response);
+        return ApiResponse.success(userService.getMyPageInfo(email));
     }
 }

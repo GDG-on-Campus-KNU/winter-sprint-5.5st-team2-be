@@ -19,14 +19,15 @@ public class ProductController {
 
     private final ProductService productService;
 
-    @Operation(summary = "상품 목록 조회", description = "카테고리, 검색어, 정렬 조건에 따라 상품 목록을 조회합니다.")
+    @Operation(summary = "상품 목록 조회", description = "카테고리, 검색어, 정렬 조건에 따라 상품 목록을 조회합니다. limit으로 개수를 제한할 수 있습니다.")
     @GetMapping
     public ApiResponse<List<ProductResponse>> getProducts(
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String search,
-            @RequestParam(required = false) String sort) {
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) Integer limit) {
 
-        List<ProductResponse> products = productService.findAllProducts(category, search, sort);
+        List<ProductResponse> products = productService.findAllProducts(category, search, sort, limit);
         return ApiResponse.success(products);
     }
 

@@ -19,6 +19,8 @@ public interface UserCouponRepository extends JpaRepository<UserCoupon, Long> {
     Optional<UserCoupon> findByIdAndUserEmail(Long id, String email);
     Optional<UserCoupon> findByIdAndUserId(Long id, Long userId);
 
+    long countByUserId(Long userId);
+
     @Modifying
     @Query("UPDATE UserCoupon uc SET uc.status = 'EXPIRED' " +
             "WHERE uc.status = 'ACTIVE' " +
