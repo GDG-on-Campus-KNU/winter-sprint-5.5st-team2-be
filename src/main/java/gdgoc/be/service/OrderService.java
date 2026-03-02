@@ -68,7 +68,7 @@ public class OrderService {
         Order order = Order.createOrder(
                 user,
                 calculation,
-                null, // 주문 레벨 쿠폰은 더 이상 사용하지 않음
+                request.couponId(), // 주문 레벨 쿠폰 반영
                 request.shippingAddress()
         );
         orderItems.forEach(order::addOrderItem);
@@ -88,7 +88,7 @@ public class OrderService {
     private List<OrderItem> createOrderItems(List<OrderItemRequest> itemRequests, Long userId) {
         return itemRequests.stream()
                 .map(itemRequest -> {
-                    Product product = productRepository.findById(itemRequest.menuId())
+                    Product product = productRepository.findById(itemRequest.productId())
                             .orElseThrow(() -> new BusinessException(BusinessErrorCode.PRODUCT_NOT_FOUND));
 
                     UserCoupon userCoupon = null;
@@ -105,7 +105,7 @@ public class OrderService {
 
     private void clearOrderedItemsFromCart(Long userId, List<OrderItemRequest> items) {
         for (OrderItemRequest item : items) {
-            cartItemRepository.findByUserIdAndProductId(userId, item.menuId())
+            cartItemRepository.findByUserIdAndProductId(userId, item.productId())
                     .ifPresent(cartItemRepository::delete);
         }
     }
@@ -140,7 +140,7 @@ public class OrderService {
         // 1. 임시로 주문 아이템들 생성 (DB 저장 X)
         List<OrderItem> orderItems = request.orderItems().stream()
                 .map(itemRequest -> {
-                    Product product = productRepository.findById(itemRequest.menuId())
+                    Product product = productRepository.findById(itemRequest.productId())
                             .orElseThrow(() -> new BusinessException(BusinessErrorCode.PRODUCT_NOT_FOUND));
                     
                     UserCoupon userCoupon = null;

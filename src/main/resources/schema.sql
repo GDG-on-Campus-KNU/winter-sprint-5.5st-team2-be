@@ -95,6 +95,7 @@ DROP TABLE IF EXISTS orders CASCADE;
 CREATE TABLE orders (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
+    coupon_id BIGINT,
     total_amount DECIMAL(19, 2) NOT NULL,
     discount_amount DECIMAL(19, 2) NOT NULL,
     delivery_fee DECIMAL(19, 2) NOT NULL DEFAULT 0,
@@ -103,7 +104,8 @@ CREATE TABLE orders (
     payment_status VARCHAR(50) NOT NULL,
     address VARCHAR(255),
     order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (coupon_id) REFERENCES coupon(id)
 );
 
 -- 7. 주문 상세 (OrderItem)
