@@ -62,7 +62,7 @@ public class Product {
 
     @ElementCollection
     @CollectionTable(name = "product_detail_images", joinColumns = @JoinColumn(name = "product_id"))
-    @Column(name = "image_url")
+    @Column(name = "detail_image")
     @BatchSize(size = 20)
     private List<String> detailImages = new ArrayList<>();
 
@@ -140,3 +140,4 @@ public class Product {
         }
     }
 }
+

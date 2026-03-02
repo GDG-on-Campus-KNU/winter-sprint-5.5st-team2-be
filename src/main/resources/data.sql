@@ -120,3 +120,25 @@ INSERT INTO cart_item (user_id, product_id, quantity, selected_size) VALUES
 (3, 24, 1, 'L'),
 (3, 30, 1, 'FREE'),
 (4, 10, 1, 'M');
+
+
+-- 1. 메인 이미지 (products 테이블의 image_url 업데이트)
+UPDATE products SET image_url = 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/Gemini_Generated_Image_lx518jlx518jlx51.png?alt=media&token=1814ec96-ec17-4244-9366-f95f2c7a1fd9' WHERE id = 1;
+UPDATE products SET image_url = 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/Gemini_Generated_Image_zdr3eizdr3eizdr3.png?alt=media&token=ec99294a-efb5-4ca7-8421-3bd9522234f6' WHERE id = 2;
+UPDATE products SET image_url = 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/스크린샷 2026-03-02 오후 9.23.29.png?alt=media&token=7fbf8b53-2598-40a8-b890-9e9555b69095' WHERE id = 3;
+UPDATE products SET image_url = 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/스크린샷 2026-03-02 오후 9.34.57.png?alt=media&token=bed7a9fe-48a5-4e1c-ba85-efbdf6e47039' WHERE id = 4;
+UPDATE products SET image_url = 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/스크린샷 2026-03-02 오후 9.38.26.png?alt=media&token=4b38072d-edf1-405d-9430-2b81576df152' WHERE id = 5;
+UPDATE products SET image_url = 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/스크린샷 2026-03-02 오후 9.40.21.png?alt=media&token=084f5d52-08a2-403f-8b14-700bfc0d53e5' WHERE id = 6;
+UPDATE products SET image_url = 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/스크린샷 2026-03-02 오후 9.43.22.png?alt=media&token=3a1adffe-5cab-48d9-a2a0-665935274492' WHERE id = 7;
+UPDATE products SET image_url = 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/스크린샷 2026-03-02 오후 9.45.01.png?alt=media&token=a6b94b2c-e65c-49ca-85e9-d3810b1543e5' WHERE id = 8;
+
+-- 2. 상세 이미지 (product_detail_images 테이블에 추가)
+INSERT INTO product_detail_images (product_id, detail_image ) VALUES
+(1, 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/Gemini_Generated_Image_tewxwrtewxwrtewx.png?alt=media&token=7bf4c777-aad7-45ab-b8c2-563329bccb5b'),
+(2, 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/스크린샷 2026-03-02 오후 9.20.49.png?alt=media&token=80c47fbf-6166-4adf-9728-3a848377a226'),
+(3, 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/스크린샷 2026-03-02 오후 9.23.17.png?alt=media&token=94b3d982-a135-4441-a514-e2bb52ccae3f'),
+(4, 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/스크린샷 2026-03-02 오후 9.35.06.png?alt=media&token=7ec2b465-74dc-4169-be4b-ec016f9e41a1'),
+(5, 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/스크린샷 2026-03-02 오후 9.38.35.png?alt=media&token=ba513141-3de3-47d6-acee-0ac996f9c1ee'),
+(6, 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/스크린샷 2026-03-02 오후 9.41.30.png?alt=media&token=b3b84732-4464-4bdb-866a-72d951d85e1e'),
+(7, 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/스크린샷 2026-03-02 오후 9.43.30.png?alt=media&token=f61a4728-3cc1-4bd5-8dea-530cbc549256'),
+(8, 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/스크린샷 2026-03-02 오후 9.45.12.png?alt=media&token=450ec53b-b6a7-49f4-9170-c33cf7e3b8b9');
