@@ -28,7 +28,12 @@ public class UserService {
         long orderCount = orderRepository.countByUserId(user.getId());
 
         return MyPageResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .userName(user.getName())
                 .role(user.getRole().name())
+                .phone(user.getPhone())
+                .address(user.getAddress())
                 .couponCount(couponCount)
                 .orderCount(orderCount)
                 .createdAt(user.getCreatedAt())
