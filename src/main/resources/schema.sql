@@ -11,7 +11,7 @@ CREATE TABLE users (
     zip_code VARCHAR(10),
     address VARCHAR(255),
     detail_address VARCHAR(255),
-    refresh_token VARCHAR(512), -- ★ 이 줄을 추가해 주세요! (해시값이 매우 길기 때문에 512 추천)
+    refresh_token VARCHAR(512),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
