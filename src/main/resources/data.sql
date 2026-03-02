@@ -1,11 +1,11 @@
 -- 1. 사용자 정보 (User)
 -- 비밀번호는 'password123' BCrypt 인코딩 값
 INSERT INTO users (name, email, password, phone, role, zip_code, address, detail_address) VALUES
-('홍길동', 'user1@example.com', '$2a$10$7pEXL8tKIsD3EunOskrKquC3/9T8/N9f2B2wU0h7g5O5Y7fI3Nf1S', '010-1234-5678', 'USER', '12345', '서울시 강남구', '테헤란로 123'),
-('김철수', 'user2@example.com', '$2a$10$7pEXL8tKIsD3EunOskrKquC3/9T8/N9f2B2wU0h7g5O5Y7fI3Nf1S', '010-9876-5432', 'USER', '54321', '부산시 해운대구', '해운대해변로 456'),
-('이영희', 'user3@example.com', '$2a$10$7pEXL8tKIsD3EunOskrKquC3/9T8/N9f2B2wU0h7g5O5Y7fI3Nf1S', '010-1111-2222', 'USER', '11111', '대구시 중구', '동성로 1길'),
-('박지민', 'user4@example.com', '$2a$10$7pEXL8tKIsD3EunOskrKquC3/9T8/N9f2B2wU0h7g5O5Y7fI3Nf1S', '010-3333-4444', 'USER', '22222', '광주시 서구', '상무대로 789'),
-('관리자', 'admin@example.com', '$2a$10$7pEXL8tKIsD3EunOskrKquC3/9T8/N9f2B2wU0h7g5O5Y7fI3Nf1S', '010-0000-0000', 'ADMIN', '00000', '서울시 본사', '관리실');
+('홍길동', 'user1@example.com', '$2a$10$lG.hGrWA8KvC2O5/G3tNE.gD7ziSDG9V8BkMjzznYts2Smfzbxzei', '010-1234-5678', 'USER', '12345', '서울시 강남구', '테헤란로 123'),
+('김철수', 'user2@example.com', '$2a$10$hfBBju4c97a2vkXcpS/0pu3hCuzkQ.alpKieaKfQAC1ySD3tbDiZG', '010-9876-5432', 'USER', '54321', '부산시 해운대구', '해운대해변로 456'),
+('이영희', 'user3@example.com', '$2a$10$s4M3oA70clPfG2beCjBz0eYWVSmYt/DMM6hlP1aVrZGu0yuLqJG3G', '010-1111-2222', 'USER', '11111', '대구시 중구', '동성로 1길'),
+('박지민', 'user4@example.com', '$2a$10$9kkaixjSgTeXqvE6cbW6Y.ZoQHW4rmbG6H4JZMi8ntLf.bRNdG38m', '010-3333-4444', 'USER', '22222', '광주시 서구', '상무대로 789'),
+('관리자', 'admin@example.com', '$2a$10$oD/fW82L8KjXQHXv8Z6XxeKBXrozCReNtYQe7RJIrRx5jy3zXBhqC', '010-0000-0000', 'ADMIN', '00000', '서울시 본사', '관리실');
 
 -- 2. 상점 정보 (Store)
 INSERT INTO store (name, address, phone) VALUES
