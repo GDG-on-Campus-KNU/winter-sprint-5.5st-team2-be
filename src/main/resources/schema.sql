@@ -56,7 +56,7 @@ CREATE TABLE product_sizes (
 DROP TABLE IF EXISTS product_detail_images CASCADE;
 CREATE TABLE product_detail_images (
     product_id BIGINT NOT NULL,
-    image_url VARCHAR(255) NOT NULL,
+    detail_image VARCHAR(255) NOT NULL,
     FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
