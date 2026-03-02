@@ -12,4 +12,5 @@ public class GdgocApplication {
 		SpringApplication.run(GdgocApplication.class, args);
 	}
 
+
 }
