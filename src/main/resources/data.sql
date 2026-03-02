@@ -1,5 +1,5 @@
 -- 1. 사용자 정보 (User)
--- 비밀번호는 'password123' BCrypt 인코딩 값
+-- 비밀번호는 'password1~5' BCrypt 인코딩 값
 INSERT INTO users (name, email, password, phone, role, zip_code, address, detail_address) VALUES
 ('홍길동', 'user1@example.com', '$2a$10$lG.hGrWA8KvC2O5/G3tNE.gD7ziSDG9V8BkMjzznYts2Smfzbxzei', '010-1234-5678', 'USER', '12345', '서울시 강남구', '테헤란로 123'),
 ('김철수', 'user2@example.com', '$2a$10$hfBBju4c97a2vkXcpS/0pu3hCuzkQ.alpKieaKfQAC1ySD3tbDiZG', '010-9876-5432', 'USER', '54321', '부산시 해운대구', '해운대해변로 456'),
