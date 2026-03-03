@@ -126,7 +126,7 @@ public class OrderService {
     @Transactional(readOnly = true)
     public List<UserCouponResponse> getMyCoupons() {
         String email = SecurityUtil.getCurrentUserEmail();
-        return userCouponRepository.findByUserEmailAndStatus(email, UserCoupon.CouponStatus.ACTIVE).stream()
+        return userCouponRepository.findByUserEmail(email).stream()
                 .map(UserCouponResponse::from)
                 .toList();
     }

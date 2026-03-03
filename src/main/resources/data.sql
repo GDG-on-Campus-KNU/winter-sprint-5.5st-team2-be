@@ -142,3 +142,26 @@ INSERT INTO product_detail_images (product_id, detail_image ) VALUES
 (6, 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/스크린샷 2026-03-02 오후 9.41.30.png?alt=media&token=b3b84732-4464-4bdb-866a-72d951d85e1e'),
 (7, 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/스크린샷 2026-03-02 오후 9.43.30.png?alt=media&token=f61a4728-3cc1-4bd5-8dea-530cbc549256'),
 (8, 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/스크린샷 2026-03-02 오후 9.45.12.png?alt=media&token=450ec53b-b6a7-49f4-9170-c33cf7e3b8b9');
+
+-- 8. 비활성 쿠폰 테스트용 데이터 추가 (USED, EXPIRED 상태)
+-- 1번 유저 ~ 5번 유저(관리자 포함)에게 각 3개씩 총 15개 추가
+INSERT INTO user_coupon (user_id, coupon_id, status) VALUES
+(1, 2, 'USED'),     -- 1번 유저: 봄맞이 전상품 세일 쿠폰 (사용 완료)
+(1, 3, 'EXPIRED'),  -- 1번 유저: VVIP 전용 파격 할인 (만료됨)
+(1, 5, 'USED'),     -- 1번 유저: 첫 주문 감사 쿠폰 (사용 완료)
+
+(2, 1, 'EXPIRED'),  -- 2번 유저: 신규 가입 환영 쿠폰 (만료됨)
+(2, 4, 'USED'),     -- 2번 유저: 무료배송 지원 쿠폰 (사용 완료)
+(2, 5, 'EXPIRED'),  -- 2번 유저: 첫 주문 감사 쿠폰 (만료됨)
+
+(3, 1, 'USED'),     -- 3번 유저: 신규 가입 환영 쿠폰 (사용 완료)
+(3, 2, 'EXPIRED'),  -- 3번 유저: 봄맞이 전상품 세일 쿠폰 (만료됨)
+(3, 4, 'USED'),     -- 3번 유저: 무료배송 지원 쿠폰 (사용 완료)
+
+(4, 2, 'USED'),     -- 4번 유저: 봄맞이 전상품 세일 쿠폰 (사용 완료)
+(4, 3, 'EXPIRED'),  -- 4번 유저: VVIP 전용 파격 할인 (만료됨)
+(4, 5, 'EXPIRED'),  -- 4번 유저: 첫 주문 감사 쿠폰 (만료됨)
+
+(5, 1, 'USED'),     -- 5번 유저(관리자): 신규 가입 환영 쿠폰 (사용 완료)
+(5, 3, 'EXPIRED'),  -- 5번 유저(관리자): VVIP 전용 파격 할인 (만료됨)
+(5, 4, 'USED');     -- 5번 유저(관리자): 무료배송 지원 쿠폰 (사용 완료)

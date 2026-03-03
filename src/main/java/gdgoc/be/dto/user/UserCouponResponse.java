@@ -5,8 +5,8 @@ import gdgoc.be.domain.UserCoupon;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public record UserCouponResponse(
-        Long id,
+public record  UserCouponResponse(
+        Long couponId,
         String couponName,
         String discountType,
         BigDecimal discountValue,
