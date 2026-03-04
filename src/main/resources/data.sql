@@ -125,23 +125,23 @@ INSERT INTO cart_item (user_id, product_id, quantity, selected_size) VALUES
 -- 1. 메인 이미지 (products 테이블의 image_url 업데이트)
 UPDATE products SET image_url = 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/Gemini_Generated_Image_lx518jlx518jlx51.png?alt=media&token=1814ec96-ec17-4244-9366-f95f2c7a1fd9' WHERE id = 1;
 UPDATE products SET image_url = 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/Gemini_Generated_Image_zdr3eizdr3eizdr3.png?alt=media&token=ec99294a-efb5-4ca7-8421-3bd9522234f6' WHERE id = 2;
-UPDATE products SET image_url = 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/스크린샷 2026-03-02 오후 9.23.29.png?alt=media&token=7fbf8b53-2598-40a8-b890-9e9555b69095' WHERE id = 3;
-UPDATE products SET image_url = 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/스크린샷 2026-03-02 오후 9.34.57.png?alt=media&token=bed7a9fe-48a5-4e1c-ba85-efbdf6e47039' WHERE id = 4;
-UPDATE products SET image_url = 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/스크린샷 2026-03-02 오후 9.38.26.png?alt=media&token=4b38072d-edf1-405d-9430-2b81576df152' WHERE id = 5;
-UPDATE products SET image_url = 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/스크린샷 2026-03-02 오후 9.40.21.png?alt=media&token=084f5d52-08a2-403f-8b14-700bfc0d53e5' WHERE id = 6;
-UPDATE products SET image_url = 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/스크린샷 2026-03-02 오후 9.43.22.png?alt=media&token=3a1adffe-5cab-48d9-a2a0-665935274492' WHERE id = 7;
-UPDATE products SET image_url = 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/스크린샷 2026-03-02 오후 9.45.01.png?alt=media&token=a6b94b2c-e65c-49ca-85e9-d3810b1543e5' WHERE id = 8;
+UPDATE products SET image_url = 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/NewBalance_990.png?alt=media&token=d55612ab-3812-4262-8922-9b28b34c54e8' WHERE id = 3;
+UPDATE products SET image_url = 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/Chuck_Taylor.png?alt=media&token=f3c668d9-9f64-4545-a9d0-80e3d52de477' WHERE id = 4;
+UPDATE products SET image_url = 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/Vans_oldSkool.png?alt=media&token=8bf29926-8dde-4757-aa20-1ecbe83cc338' WHERE id = 5;
+UPDATE products SET image_url = 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/Crocs.png?alt=media&token=27d868d0-21f4-4e34-9ad8-b7651afa44c4' WHERE id = 6;
+UPDATE products SET image_url = 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/Polo_Ralph_Laureun.png?alt=media&token=5f40988e-4fdd-4446-9973-985b5823d4b4' WHERE id = 7;
+UPDATE products SET image_url = 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/P_6_logo_pocket_T_Shirt.png?alt=media&token=ffa23d61-558c-40d2-9491-bb03ec4952b3' WHERE id = 8;
 
 -- 2. 상세 이미지 (product_detail_images 테이블에 추가)
 INSERT INTO product_detail_images (product_id, detail_image ) VALUES
 (1, 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/Gemini_Generated_Image_tewxwrtewxwrtewx.png?alt=media&token=7bf4c777-aad7-45ab-b8c2-563329bccb5b'),
-(2, 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/스크린샷 2026-03-02 오후 9.20.49.png?alt=media&token=80c47fbf-6166-4adf-9728-3a848377a226'),
-(3, 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/스크린샷 2026-03-02 오후 9.23.17.png?alt=media&token=94b3d982-a135-4441-a514-e2bb52ccae3f'),
-(4, 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/스크린샷 2026-03-02 오후 9.35.06.png?alt=media&token=7ec2b465-74dc-4169-be4b-ec016f9e41a1'),
-(5, 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/스크린샷 2026-03-02 오후 9.38.35.png?alt=media&token=ba513141-3de3-47d6-acee-0ac996f9c1ee'),
-(6, 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/스크린샷 2026-03-02 오후 9.41.30.png?alt=media&token=b3b84732-4464-4bdb-866a-72d951d85e1e'),
-(7, 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/스크린샷 2026-03-02 오후 9.43.30.png?alt=media&token=f61a4728-3cc1-4bd5-8dea-530cbc549256'),
-(8, 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/스크린샷 2026-03-02 오후 9.45.12.png?alt=media&token=450ec53b-b6a7-49f4-9170-c33cf7e3b8b9');
+(2, 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/Yeezy.png?alt=media&token=f182e870-1d46-4872-a115-54bbaaa5e38b'),
+(3, 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/NewBalance_990_detail_image.png?alt=media&token=5925ff95-39bd-41ee-8688-6a276e86ae4e'),
+(4, 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/Chuck_Taylor_detail_image.png?alt=media&token=ed8547f5-c46d-48f7-9699-36c5a57b1dc8'),
+(5, 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/Vans_oldSkool_detail_image.png?alt=media&token=db57b86c-a4c5-4f6f-baa7-7c3b1d78d258'),
+(6, 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/Crocs_detail_image.png?alt=media&token=86173240-d7df-46f6-b8b8-8bda5df7cd77'),
+(7, 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/Polo_Ralph_Laureun_detail_image.png?alt=media&token=a5743953-ab6a-4084-a37f-f2b864fc889e'),
+(8, 'https://firebasestorage.googleapis.com/v0/b/gdg-sprint-goodstyle.firebasestorage.app/o/P_6_logo_pocket_T_Shirt_detail_image.png?alt=media&token=4c627bfc-e595-4d53-98c3-059dce982a39');
 
 -- 8. 비활성 쿠폰 테스트용 데이터 추가 (USED, EXPIRED 상태)
 -- 1번 유저 ~ 5번 유저(관리자 포함)에게 각 3개씩 총 15개 추가
